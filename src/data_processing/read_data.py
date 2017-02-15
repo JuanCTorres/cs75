@@ -38,6 +38,7 @@ def write_label_seq_file(file_in, file_out, write_file=0):
                         # print 'in while...'
                         x = ifile.tell()
                         l = ifile.readline()
+
                         if len(l) == 0:  # EOF
                             # do something
                             # print seq
@@ -46,7 +47,7 @@ def write_label_seq_file(file_in, file_out, write_file=0):
                             del seq
 
                             return
-                        if l[0] == '>':
+                        elif l[0] == '>':
                             ifile.seek(x)
                             break
                         else:
@@ -100,15 +101,16 @@ def check_output_file_validity(filename):
         else:
             print "\noutput file seems fine\n"
 
+
 if __name__ == '__main__':
     input_file = "../../data/plants/all_plants.fas_updated04152015"
     output_file = "../../data/plants/label_seq.txt"
 
     write_file = 0
 
-    # if os.path.exists(output_file) and write_file != 0:
-    #     os.remove(output_file)
-    # write_label_seq_file(input_file, output_file, write_file=write_file)
+    if os.path.exists(output_file) and write_file != 0:
+        os.remove(output_file)
+    write_label_seq_file(input_file, output_file, write_file=write_file)
 
     find_unique_labels(output_file)
     check_output_file_validity(output_file)
