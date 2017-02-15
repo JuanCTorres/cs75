@@ -2,17 +2,19 @@
 def add_to_correlation_dict(key, correlation_dict, raw_data):
     row = raw_data.rstrip().split()
     for i in range(0, len(row) - 1, 2):
-        tup = (row[i].rstrip(), float(row[i + 1]))
-
+        corr_id, corr = row[i].rstrip(), float(row[i + 1])
+        # TODO is there a need to double key
         if key in correlation_dict:
-            correlation_dict[key].append(tup)
+            correlation_dict[key][corr_id] = corr
         else:
-            correlation_dict[key] = [tup]
+            inner_d = dict()
+            inner_d[corr_id] = corr
+            correlation_dict[key] = inner_d
 
-        print "k: %s v: (%s, %f)" % (key, tup[0], tup[1])
+        # print "k: %s v: (%s, %f)" % (key, tup[0], tup[1])
 
 
-def add_to_dict_to_dict(id, d, raw_data0, raw_data1, raw_data2):
+def add_to_score_dict(id, d, raw_data0, raw_data1, raw_data2):
     inner_d = dict()
 
     row0 = raw_data0.rstrip().split()
@@ -20,7 +22,7 @@ def add_to_dict_to_dict(id, d, raw_data0, raw_data1, raw_data2):
     row2 = raw_data2.rstrip().split()
 
     if id in d:
-        raise Exception("key % shouldn't exist in d_to_d yet" % id)
+        raise Exception("key % shouldn't exist in score_d yet" % id)
 
     for i in range(0, 10):
         a, b = row0[i].split('/')
@@ -39,7 +41,7 @@ def add_to_dict_to_dict(id, d, raw_data0, raw_data1, raw_data2):
 
 
 def construct_dict(file_in):
-    d_to_d = dict()
+    score_d = dict()
     corr_d = dict()
 
     with open(file_in, 'r') as ifile:
@@ -81,24 +83,23 @@ def construct_dict(file_in):
                 row1 = ifile.readline()
                 row2 = ifile.readline()
 
-                add_to_dict_to_dict(id, d_to_d, row0, row1, row2)
+                add_to_score_dict(id, score_d, row0, row1, row2)
 
             elif l[0] == '//':    # end of a dict
                 pass
 
-    return d_to_d, corr_d
+    return score_d, corr_d
 
 
 if __name__ == '__main__':
     input_file = "../../data/aaindex/aaindex1.txt"
     d1, d2 = construct_dict(input_file)
 
-    for k, v in d2.iteritems():
-        print "%s %s" % (k, str(v))
+    # for k, v in d2.iteritems():
+    #     print "%s %s" % (k, str(v))
+    #
+    # for k, v in d1.iteritems():
+    #     print "%s -> %s" % (k, str(v))
 
-    for k, d in d1.iteritems():
-        for aa, score in d.iteritems():
-            print "%s -> %s" % (k, str((aa, score)))
-
-    print "len(d1): %d (should be 566)" % len(d1)
-    print "len(d2): %d" % len(d2)
+    print "len(d1): %d (should be 566)" % len(d1.keys())
+    print "len(d2): %d" % len(d2.keys())
