@@ -1,4 +1,12 @@
 
+def get_aaindex_list(filename):
+    aalist = list()
+    with open(filename, 'r') as ifile:
+        for l in ifile:
+            aalist.append(l.rstrip())
+    return aalist
+
+
 def add_to_correlation_dict(key, correlation_dict, raw_data):
     row = raw_data.rstrip().split()
     for i in range(0, len(row) - 1, 2):
@@ -40,14 +48,14 @@ def add_to_score_dict(id, d, raw_data0, raw_data1, raw_data2):
     d[id] = inner_d
 
 
-def construct_dict(file_in):
+def construct_dicts(file_in):
     score_d = dict()
     corr_d = dict()
 
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
             count = i+1
-        print 'num lines: %d' % count
+        print 'aaindex lines: %d' % count
 
     with open(file_in, 'r') as ifile:
         for i in range(count):
@@ -63,7 +71,7 @@ def construct_dict(file_in):
 
             elif l[0] == 'H':     # ID of dict
                 id = l.split(' ')[1].rstrip()
-                print id
+                # print id
 
             elif l[0] == 'C':     # correlations
                 l = l[1:]
@@ -92,8 +100,10 @@ def construct_dict(file_in):
 
 
 if __name__ == '__main__':
-    input_file = "../../data/aaindex/aaindex1.txt"
-    d1, d2 = construct_dict(input_file)
+    input_file0 = "../../data/aaindex/aaindex1.txt"
+    input_file1 = "../../data/aaindex/aaindex_used.txt"
+
+    d1, d2 = construct_dicts(input_file0)
 
     # for k, v in d2.iteritems():
     #     print "%s %s" % (k, str(v))
@@ -103,3 +113,7 @@ if __name__ == '__main__':
 
     print "len(d1): %d (should be 566)" % len(d1.keys())
     print "len(d2): %d" % len(d2.keys())
+
+    l = get_aaindex_list(input_file1)
+    print l
+

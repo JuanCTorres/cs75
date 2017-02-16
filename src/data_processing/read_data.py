@@ -1,23 +1,111 @@
 import os
 import re
+from collections import Counter
+import read_dicts
+
+
+def getscores(d, aalist, seq):
+    score_list = list()
+
+    char_freq = dict()
+
+    for c in seq:
+        if c in char_freq:
+            char_freq[c] += 1
+        else:
+            char_freq[c] = 1
+
+    for aa in aalist:
+        score = 0
+
+        for k in d[aa].iterkeys():
+            try:
+                freq = char_freq[k]
+            except KeyError:
+                freq = 0
+
+            score += d[aa][k] * freq
+
+        score_list.append(str(score))
+
+    return '|'.join(score_list)
+
+
+def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
+    print 'building and writing %s' % file_out
+
+    count = 0
+    entry_count = 0
+
+    score_d, corr_d = read_dicts.construct_dicts("../../data/aaindex/aaindex1.txt")
+    aalist = read_dicts.get_aaindex_list("../../data/aaindex/aaindex_used.txt")
+
+    with open(file_in, 'r') as ifile:
+        for i, l in enumerate(ifile):
+            count = i + 1
+        print 'raw data lines: %d' % count
+    with open(file_in, 'r') as ifile:
+        with open(file_out, 'a') as ofile:
+            for i in range(count):
+                print "%d of %d lines" % (i+1, count)
+                l = ifile.readline()
+                # if i == 1000:
+                #     break
+                if l[0] == '>':
+                    location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
+                    location = location_search.group('location').rstrip()
+                    # print location
+
+                else:
+                    seq = ''
+                    seq += l.rstrip()
+                    while True:
+                        x = ifile.tell()
+                        l = ifile.readline()
+
+                        if l == '':  # EOF
+                            # do something
+                            # print seq
+                            if location != 'NULL' and write_file != 0:
+                                scores = getscores(score_d, aalist, seq)
+                                ofile.write('%s|%s\n' % (location, scores))
+                            del seq
+
+                            return
+                        elif l[0] == '>':
+                            ifile.seek(x)
+                            break
+                        else:
+                            seq += l.rstrip()
+                    # do something
+                    # print seq + '\n'
+
+                    if location != 'NULL' and write_file != 0:
+                        scores = getscores(score_d, aalist, seq)
+                        ofile.write('%s|%s\n' % (location, scores))
+                        entry_count += 1
+                        print 'number of entries: %d' % entry_count
+                        if outsize != 'all':
+                            if entry_count == outsize:
+                                break
+                    del seq
+
 
 
 def write_label_seq_file(file_in, file_out, write_file=0):
     count = 0
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
-            count = i+1
+            count = i + 1
         print 'num lines: %d' % count
     with open(file_in, 'r') as ifile:
         with open(file_out, 'a') as ofile:
             for i in range(count):
-                # print 'in for...\n'
                 l = ifile.readline()
+
                 # if i == 1000:
                 #     break
                 if l[0] == '>':
-                    # print 'in if...'
-
                     # id_search = re.search(r"\|(?P<id>.+?)\|", l)
                     # id = id_search.group('id').rstrip()
                     # print id
@@ -31,15 +119,13 @@ def write_label_seq_file(file_in, file_out, write_file=0):
                     print location
 
                 else:
-                    # print 'in else...'
                     seq = ''
                     seq += l.rstrip()
                     while True:
-                        # print 'in while...'
                         x = ifile.tell()
                         l = ifile.readline()
 
-                        if len(l) == 0:  # EOF
+                        if l == '':  # EOF
                             # do something
                             # print seq
                             if location != 'NULL' and write_file != 0:
@@ -64,7 +150,7 @@ def find_unique_labels(filename):
 
         d = dict()
         for l in ifile:
-            label, seq = l.strip().split('|')
+            label = l.strip().split('|')[0]
 
             if label in d:
                 d[label] += 1
@@ -75,7 +161,7 @@ def find_unique_labels(filename):
             print "k: %s v:%d" % (k,v)
 
 
-def check_output_file_validity(filename):
+def check_label_seq_file_validity(filename):
     print "\nchecking validity of output file..."
     non_alpha_count = 0
     invalid_label_count = 0
@@ -104,13 +190,22 @@ def check_output_file_validity(filename):
 
 if __name__ == '__main__':
     input_file = "../../data/plants/all_plants.fas_updated04152015"
-    output_file = "../../data/plants/label_seq.txt"
+    output_file0 = "../../data/plants/label_seq.txt"
+    output_file1 = "../../data/plants/label_scores.txt"
 
-    write_file = 0
+    enable_write = 1
 
-    if os.path.exists(output_file) and write_file != 0:
-        os.remove(output_file)
-    write_label_seq_file(input_file, output_file, write_file=write_file)
+    size = 30000
 
-    find_unique_labels(output_file)
-    check_output_file_validity(output_file)
+    # if os.path.exists(output_file0) and enable_write != 0:
+    #     os.remove(output_file0)
+    # write_label_seq_file(input_file, output_file0, write_file=enable_write)
+    #
+    # find_unique_labels(output_file0)
+    # check_label_seq_file_validity(output_file0)
+
+    if os.path.exists(output_file1) and enable_write != 0:
+        os.remove(output_file1)
+    write_label_score_file(input_file, output_file1, write_file=enable_write, outsize=size)
+    print '%s contains these labels:' % output_file1
+    find_unique_labels(output_file1)
