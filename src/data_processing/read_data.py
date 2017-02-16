@@ -69,6 +69,8 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
                             if location != 'NULL' and write_file != 0:
                                 scores = getscores(score_d, aalist, seq)
                                 ofile.write('%s|%s\n' % (location, scores))
+                                entry_count += 1
+                                print 'number of entries: %d' % entry_count
                             del seq
 
                             return
@@ -158,7 +160,7 @@ def find_unique_labels(filename):
                 d[label] = 1
 
         for k,v in d.iteritems():
-            print "k: %s v:%d" % (k,v)
+            print "l: %s count:%d" % (k,v)
 
 
 def check_label_seq_file_validity(filename):
@@ -192,18 +194,19 @@ if __name__ == '__main__':
     input_file = "../../data/plants/all_plants.fas_updated04152015"
     output_file0 = "../../data/plants/label_seq.txt"
     output_file1 = "../../data/plants/label_scores.txt"
-
     enable_write = 1
 
-    size = 30000
+    # number of entries to output in the label & scores file.... max is 1257123
+    size = 20000
 
+    # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SEQUENCE file
     # if os.path.exists(output_file0) and enable_write != 0:
     #     os.remove(output_file0)
     # write_label_seq_file(input_file, output_file0, write_file=enable_write)
-    #
     # find_unique_labels(output_file0)
     # check_label_seq_file_validity(output_file0)
 
+    # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
     if os.path.exists(output_file1) and enable_write != 0:
         os.remove(output_file1)
     write_label_score_file(input_file, output_file1, write_file=enable_write, outsize=size)
