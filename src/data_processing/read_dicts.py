@@ -1,3 +1,4 @@
+from random import randint
 
 def get_aaindex_list(filename):
     aalist = list()
@@ -48,7 +49,7 @@ def add_to_score_dict(id, d, raw_data0, raw_data1, raw_data2):
     d[id] = inner_d
 
 
-def construct_dicts(file_in):
+def construct_dicts(file_in, file_out):
     score_d = dict()
     corr_d = dict()
 
@@ -95,15 +96,44 @@ def construct_dicts(file_in):
 
             elif l[0] == '//':    # end of a dict
                 pass
-
+    select_dicts(corr_d, file_out)
     return score_d, corr_d
+
+def select_dicts(dict, file_out):
+    all_dicts, max_score, best_list = dict.keys(), 0, None
+    for repeat in range(100):
+        prev_list, dict_list, list_score, try_again = None, all_dicts[:], 0, 0
+        while try_again<1000:
+            # len(dict_list)>135 and
+            if prev_list == dict_list:
+                try_again +=1
+            else:
+                try_again = 0
+            prev_list, curr_dict = dict_list, dict[dict_list[randint(0,(len(dict_list)-1))]]
+            for element in curr_dict:
+                if element in dict_list and curr_dict[element]>0.8:
+                    list_score += float(curr_dict[element])
+                    dict_list.remove(element)
+        list_score = list_score/(len(all_dicts)-len(dict_list))
+        if list_score > max_score:
+            best_list, max_score = dict_list[:], list_score
+
+    print("Best List: ")
+    print(best_list)
+    print("length: "+str(len(best_list))+"; score: "+str(max_score))
+    out_file = open(file_out, 'w')
+    for element in best_list:
+        out_file.write("%s\n" % element)
+    out_file.close()
+
+
 
 
 if __name__ == '__main__':
     input_file0 = "../../data/aaindex/aaindex1.txt"
     input_file1 = "../../data/aaindex/aaindex_used.txt"
 
-    d1, d2 = construct_dicts(input_file0)
+    d1, d2 = construct_dicts(input_file0, input_file1)
 
     # for k, v in d2.iteritems():
     #     print "%s %s" % (k, str(v))
@@ -115,5 +145,4 @@ if __name__ == '__main__':
     print "len(d2): %d" % len(d2.keys())
 
     l = get_aaindex_list(input_file1)
-    print l
-
+    # print l
