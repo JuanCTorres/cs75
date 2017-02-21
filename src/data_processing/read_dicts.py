@@ -1,4 +1,5 @@
 from random import randint
+import sys
 
 def get_aaindex_list(filename):
     aalist = list()
@@ -96,7 +97,7 @@ def construct_dicts(file_in, file_out):
 
             elif l[0] == '//':    # end of a dict
                 pass
-    select_dicts(corr_d, file_out)
+
     return score_d, corr_d
 
 def select_dicts(dict, file_out):
@@ -104,7 +105,6 @@ def select_dicts(dict, file_out):
     for repeat in range(100):
         prev_list, dict_list, list_score, try_again = None, all_dicts[:], 0, 0
         while try_again<1000:
-            # len(dict_list)>135 and
             if prev_list == dict_list:
                 try_again +=1
             else:
@@ -130,6 +130,7 @@ def select_dicts(dict, file_out):
 
 
 if __name__ == '__main__':
+
     input_file0 = "../../data/aaindex/aaindex1.txt"
     input_file1 = "../../data/aaindex/aaindex_used.txt"
 
@@ -140,7 +141,8 @@ if __name__ == '__main__':
     #
     # for k, v in d1.iteritems():
     #     print "%s -> %s" % (k, str(v))
-
+    if len(sys.argv)>1:
+        select_dicts(d2, input_file1)
     print "len(d1): %d (should be 566)" % len(d1.keys())
     print "len(d2): %d" % len(d2.keys())
 
