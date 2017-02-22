@@ -47,7 +47,7 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
     with open(file_in, 'r') as ifile:
         with open(file_out, 'a') as ofile:
             for i in range(count):
-                print "%d of %d lines" % (i+1, count)
+                # print "%d of %d lines" % (i+1, count)
                 l = ifile.readline()
                 # if i == 1000:
                 #     break
@@ -192,8 +192,10 @@ def check_label_seq_file_validity(filename):
 
 if __name__ == '__main__':
     input_file = "../../data/plants/all_plants.fas_updated04152015"
+    # input_file = '/Volumes/RAMDisk/all_plants.fas_updated04152015'
     output_file0 = "../../data/plants/label_seq.txt"
     output_file1 = "../../data/plants/label_scores.txt"
+    # output_file1 = "/Volumes/RAMDisk/label_scores.txt"
     enable_write = 1
 
     # number of entries to output in the label & scores file.... max is 1257123

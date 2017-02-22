@@ -1,6 +1,7 @@
 from random import randint
 import sys
 
+
 def get_aaindex_list(filename):
     aalist = list()
     with open(filename, 'r') as ifile:
@@ -50,7 +51,7 @@ def add_to_score_dict(id, d, raw_data0, raw_data1, raw_data2):
     d[id] = inner_d
 
 
-def construct_dicts(file_in, file_out):
+def construct_dicts(file_in):
     score_d = dict()
     corr_d = dict()
 
@@ -100,6 +101,7 @@ def construct_dicts(file_in, file_out):
 
     return score_d, corr_d
 
+
 def select_dicts(dict, file_out):
     all_dicts, max_score, best_list = dict.keys(), 0, None
     for repeat in range(100):
@@ -111,10 +113,10 @@ def select_dicts(dict, file_out):
                 try_again = 0
             prev_list, curr_dict = dict_list, dict[dict_list[randint(0,(len(dict_list)-1))]]
             for element in curr_dict:
-                if element in dict_list and curr_dict[element]>0.8:
+                if element in dict_list and curr_dict[element] > 0.8:
                     list_score += float(curr_dict[element])
                     dict_list.remove(element)
-        list_score = list_score/(len(all_dicts)-len(dict_list))
+        list_score /= (len(all_dicts)-len(dict_list))
         if list_score > max_score:
             best_list, max_score = dict_list[:], list_score
 
