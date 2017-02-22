@@ -24,3 +24,6 @@ order of the aaindices in aaindex_used.txt
 * run read_data.py
 * 'size' variable in \_\_main__ determines the number of data points in output file ./data/plants/label_scores.txt.
 Feel free to change this variable.
+
+# Reading in preprocessed data
+use read_data.read_preprocessed_data() which returns a tuple of labels and features
