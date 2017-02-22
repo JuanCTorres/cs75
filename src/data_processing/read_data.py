@@ -190,6 +190,19 @@ def check_label_seq_file_validity(filename):
             print "\noutput file seems fine\n"
 
 
+def read_preprocessed_data(input_file):
+    labels = list()
+    features = list()
+
+    with open(input_file, 'r') as ifile:
+        for line in ifile:
+            temp = line.rstrip().split('|')
+            labels.append(temp[0])
+            features.append(map(float, temp[1:]))
+
+    return labels, features
+
+
 if __name__ == '__main__':
     input_file = "../../data/plants/all_plants.fas_updated04152015"
     # input_file = '/Volumes/RAMDisk/all_plants.fas_updated04152015'
