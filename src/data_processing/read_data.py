@@ -192,30 +192,32 @@ def check_label_seq_file_validity(filename):
 
 def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0, format='default'):
     """
-    reads in label_scores.txt file and returns the labels and features as lists
+    reads in label_scores.txt file and returns the labels and features as lists or dataframes
     :param input_file: directory of label_scores.txt file
     :param exclude_labels_less_than: skip labels with occurrence less than this value
+    :param format default or df: what format to return the labels and features in
     :return: (labels, features)
     """
     with open(input_file, 'r') as ifile:
         lines = [line.rstrip().split('|') for line in ifile.readlines()]
         all_labels = [line[0] for line in lines]
         occurrences = Counter(all_labels)
-        with open(features_file) as f:
-            features_used = [line.strip() for line in f.readlines()]
 
-        labeled_data = [(lines[i][0], map(float, lines[i][1:])) for i in range(len(lines)) if
-                        occurrences[all_labels[i]] >= exclude_labels_less_than]
-        labels, feature_matrix = zip(*labeled_data)
+    with open(features_file, 'r') as f:
+        features_used = [line.strip() for line in f.readlines()]
 
-        if format == 'default':
-            return list(labels), list(feature_matrix)  # tuples can make some things harder
-        elif format == 'df':
-            data = pd.DataFrame(data=list(feature_matrix), columns=features_used)
-            labels = pd.DataFrame(data=list(labels))
-            return labels, data
-        else:
-            raise Exception('Unknown format %s' % format)
+    labeled_data = [(lines[i][0], map(float, lines[i][1:])) for i in range(len(lines)) if
+                    occurrences[all_labels[i]] >= exclude_labels_less_than]
+    labels, feature_matrix = zip(*labeled_data)
+
+    if format == 'default':
+        return list(labels), list(feature_matrix)  # tuples can make some things harder
+    elif format == 'df':
+        data = pd.DataFrame(data=list(feature_matrix), columns=features_used)
+        labels = pd.DataFrame(data=list(labels))
+        return labels, data
+    else:
+        raise Exception('Unknown format %s' % format)
 
 
 if __name__ == '__main__':
