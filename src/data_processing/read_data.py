@@ -200,12 +200,11 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
     """
     with open(input_file, 'r') as ifile:
         lines = [line.rstrip().split('|') for line in ifile.readlines()]
-        all_labels = [line[0] for line in lines]
-        occurrences = Counter(all_labels)
-
     with open(features_file, 'r') as f:
         features_used = [line.strip() for line in f.readlines()]
 
+    all_labels = [line[0] for line in lines]
+    occurrences = Counter(all_labels)
     labeled_data = [(lines[i][0], map(float, lines[i][1:])) for i in range(len(lines)) if
                     occurrences[all_labels[i]] >= exclude_labels_less_than]
     labels, feature_matrix = zip(*labeled_data)
