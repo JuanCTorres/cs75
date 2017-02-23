@@ -190,15 +190,37 @@ def check_label_seq_file_validity(filename):
             print "\noutput file seems fine\n"
 
 
-def read_preprocessed_data(input_file):
+def read_preprocessed_data(input_file, exclude_labels_less_than=0):
+    """
+    reads in label_scores.txt file and returns the labels and features as lists
+    :param input_file: directory of label_scores.txt file
+    :param exclude_labels_less_than: skip labels with occurrence less than this value
+    :return: (labels, features)
+    """
     labels = list()
     features = list()
+    d = dict()
 
     with open(input_file, 'r') as ifile:
         for line in ifile:
+            # print line
             temp = line.rstrip().split('|')
-            labels.append(temp[0])
-            features.append(map(float, temp[1:]))
+            try:
+                d[temp[0]] += 1
+            except KeyError:
+                d[temp[0]] = 1
+
+        ifile.seek(0)
+
+        for line in ifile:
+
+            temp = line.rstrip().split('|')
+
+            if d[temp[0]] < exclude_labels_less_than:
+                continue
+            else:
+                labels.append(temp[0])
+                features.append(map(float, temp[1:]))
 
     return labels, features
 
@@ -225,5 +247,5 @@ if __name__ == '__main__':
     if os.path.exists(output_file1) and enable_write != 0:
         os.remove(output_file1)
     write_label_score_file(input_file, output_file1, write_file=enable_write, outsize=size)
-    print '%s contains these labels:' % output_file1
+    print('%s contains these labels:' % output_file1)
     find_unique_labels(output_file1)
