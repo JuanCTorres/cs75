@@ -5,6 +5,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import ShuffleSplit
+from sklearn.feature_selection import SelectKBest, f_classif, VarianceThreshold
+from sklearn.preprocessing import Normalizer, normalize
+
 
 def rand_forest(labels, features):
     rf = RandomForestClassifier()
@@ -24,6 +27,14 @@ if __name__ == '__main__':
     # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.4, random_state=0)
     rf = RandomForestClassifier(n_estimators=10, criterion='gini', max_features='auto',
                                 min_samples_split=2, verbose=1)
+
+    X = normalize(X, norm='l2', axis=1, copy=False)
+    print('# features before var filter: %d'% len(X[0]))
+    # X = VarianceThreshold(threshold=0.00000005).fit_transform(X)
+    print('# features after var filter: %d' % len(X[0]))
+    X = SelectKBest(f_classif, k=50).fit_transform(X, Y)
+
+
 
     scores = cross_val_score(rf, X, Y, cv=cv)
 
