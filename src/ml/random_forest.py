@@ -4,6 +4,7 @@ from data_processing.read_data import read_preprocessed_data
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import ShuffleSplit
 
 def rand_forest(labels, features):
     rf = RandomForestClassifier()
