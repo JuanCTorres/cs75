@@ -22,7 +22,8 @@ if __name__ == '__main__':
     # Y - labels, X - features
     Y, X = read_preprocessed_data(input_file, cv)
     # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.4, random_state=0)
-    rf = RandomForestClassifier()
+    rf = RandomForestClassifier(n_estimators=10, criterion='gini', max_features='auto',
+                                min_samples_split=2, verbose=1)
 
     scores = cross_val_score(rf, X, Y, cv=cv)
 
