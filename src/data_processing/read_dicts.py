@@ -22,7 +22,7 @@ def add_to_correlation_dict(key, correlation_dict, raw_data):
             inner_d[corr_id] = corr
             correlation_dict[key] = inner_d
 
-        # print "k: %s v: (%s, %f)" % (key, tup[0], tup[1])
+            # print "k: %s v: (%s, %f)" % (key, tup[0], tup[1])
 
 
 def add_to_score_dict(id, d, raw_data0, raw_data1, raw_data2):
@@ -38,7 +38,7 @@ def add_to_score_dict(id, d, raw_data0, raw_data1, raw_data2):
     for i in range(0, 10):
         a, b = row0[i].split('/')
 
-        try:        # catch float('NA') error
+        try:  # catch float('NA') error
             inner_d[a] = float(row1[i])
         except ValueError:
             inner_d[a] = 0
@@ -57,8 +57,8 @@ def construct_dicts(file_in):
 
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
-            count = i+1
-        print 'aaindex lines: %d' % count
+            count = i + 1
+        print('aaindex lines: %d' % count)
 
     with open(file_in, 'r') as ifile:
         for i in range(count):
@@ -69,14 +69,14 @@ def construct_dicts(file_in):
 
             l = ifile.readline()
 
-            if l == '':     # EOF
+            if l == '':  # EOF
                 pass
 
-            elif l[0] == 'H':     # ID of dict
+            elif l[0] == 'H':  # ID of dict
                 id = l.split(' ')[1].rstrip()
                 # print id
 
-            elif l[0] == 'C':     # correlations
+            elif l[0] == 'C':  # correlations
                 l = l[1:]
                 add_to_correlation_dict(id, corr_d, l)
 
@@ -89,14 +89,14 @@ def construct_dicts(file_in):
                     else:
                         add_to_correlation_dict(id, corr_d, l)
 
-            elif l[0] == 'I':     # dict values
+            elif l[0] == 'I':  # dict values
                 row0 = l[1:]
                 row1 = ifile.readline()
                 row2 = ifile.readline()
 
                 add_to_score_dict(id, score_d, row0, row1, row2)
 
-            elif l[0] == '//':    # end of a dict
+            elif l[0] == '//':  # end of a dict
                 pass
 
     return score_d, corr_d
@@ -106,29 +106,27 @@ def select_dicts(dict, file_out):
     all_dicts, max_score, best_list = dict.keys(), 0, None
     for repeat in range(100):
         prev_list, dict_list, list_score, try_again = None, all_dicts[:], 0, 0
-        while try_again<1000:
+        while try_again < 1000:
             if prev_list == dict_list:
-                try_again +=1
+                try_again += 1
             else:
                 try_again = 0
-            prev_list, curr_dict = dict_list, dict[dict_list[randint(0,(len(dict_list)-1))]]
+            prev_list, curr_dict = dict_list, dict[dict_list[randint(0, (len(dict_list) - 1))]]
             for element in curr_dict:
                 if element in dict_list and curr_dict[element] > 0.8:
                     list_score += float(curr_dict[element])
                     dict_list.remove(element)
-        list_score /= (len(all_dicts)-len(dict_list))
+        list_score = list_score / (len(all_dicts) - len(dict_list))
         if list_score > max_score:
             best_list, max_score = dict_list[:], list_score
 
     print("Best List: ")
     print(best_list)
-    print("length: "+str(len(best_list))+"; score: "+str(max_score))
+    print("length: " + str(len(best_list)) + "; score: " + str(max_score))
     out_file = open(file_out, 'w')
     for element in best_list:
         out_file.write("%s\n" % element)
     out_file.close()
-
-
 
 
 if __name__ == '__main__':
@@ -136,17 +134,17 @@ if __name__ == '__main__':
     input_file0 = "../../data/aaindex/aaindex1.txt"
     input_file1 = "../../data/aaindex/aaindex_used.txt"
 
-    d1, d2 = construct_dicts(input_file0, input_file1)
+    d1, d2 = construct_dicts(input_file0)
 
     # for k, v in d2.iteritems():
     #     print "%s %s" % (k, str(v))
     #
     # for k, v in d1.iteritems():
     #     print "%s -> %s" % (k, str(v))
-    if len(sys.argv)>1:
+    if len(sys.argv) > 1:
         select_dicts(d2, input_file1)
-    print "len(d1): %d (should be 566)" % len(d1.keys())
-    print "len(d2): %d" % len(d2.keys())
+    print("len(d1): %d (should be 566)" % len(d1.keys()))
+    print("len(d2): %d" % len(d2.keys()))
 
     l = get_aaindex_list(input_file1)
     # print l
