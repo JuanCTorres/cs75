@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 from sklearn.ensemble import RandomForestClassifier
@@ -7,6 +8,10 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import ShuffleSplit
 from sklearn.feature_selection import SelectKBest, f_classif, VarianceThreshold
 from sklearn.preprocessing import Normalizer, normalize
+import pandas as pd
+
+INPUT_FILE = '../../data/plants/label_scores.txt'
+FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
 
 
 def rand_forest(labels, features):
@@ -17,32 +22,37 @@ def rand_forest(labels, features):
     return rf
 
 
-if __name__ == '__main__':
-    input_file = "../../data/plants/label_scores.txt"
+def get_feature_vector_length(file):
+    with open(file) as f:
+        l = f.readline().split('|')
+        vector_len = len(l)
+    return vector_len
 
+
+if __name__ == '__main__':
     # number of divisions for cross validation
-    cv = 5
+    vec_length = get_feature_vector_length(INPUT_FILE)
+    cross_val = 5
     # Y - labels, X - features
-    Y, X = read_preprocessed_data(input_file, cv)
+    Y, X = read_preprocessed_data(INPUT_FILE, FEATURES_FILE, cross_val)
+    x_train = pd.read_csv(INPUT_FILE, sep='|', usecols=range(1, vec_length), header=None)
+    y_train = pd.read_csv(INPUT_FILE, sep='|', usecols=[0], header=None)
+
     # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.4, random_state=0)
     rf = RandomForestClassifier(n_estimators=10, criterion='gini', max_features='auto',
                                 min_samples_split=2, verbose=1)
 
     X = normalize(X, norm='l2', axis=1, copy=False)
-    print('# features before var filter: %d'% len(X[0]))
+    print('# features before var filter: %d' % len(X[0]))
     # X = VarianceThreshold(threshold=0.00000005).fit_transform(X)
     print('# features after var filter: %d' % len(X[0]))
     X = SelectKBest(f_classif, k=50).fit_transform(X, Y)
 
-
-
-    scores = cross_val_score(rf, X, Y, cv=cv)
+    scores = cross_val_score(rf, X, Y, cv=cross_val)
 
     print(scores)
     # The mean score and the 95% confidence interval
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-
-
 
     # print labels
     # print features
