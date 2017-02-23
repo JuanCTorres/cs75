@@ -32,22 +32,22 @@ def getscores(d, aalist, seq):
 
 
 def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
-    print 'building and writing %s' % file_out
+    print('building and writing %s' % file_out)
 
     count = 0
     entry_count = 0
 
-    score_d, corr_d = read_dicts.construct_dicts("../../data/aaindex/aaindex1.txt")
+    score_d, corr_d = read_dicts.construct_dicts("../../data/aaindex/aaindex1.txt")  # TODO This is broken right now.
     aalist = read_dicts.get_aaindex_list("../../data/aaindex/aaindex_used.txt")
 
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
             count = i + 1
-        print 'raw data lines: %d' % count
+        print('raw data lines: %d' % count)
     with open(file_in, 'r') as ifile:
         with open(file_out, 'a') as ofile:
             for i in range(count):
-                print "%d of %d lines" % (i+1, count)
+                print("%d of %d lines" % (i + 1, count))
                 l = ifile.readline()
                 # if i == 1000:
                 #     break
@@ -70,7 +70,7 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
                                 scores = getscores(score_d, aalist, seq)
                                 ofile.write('%s|%s\n' % (location, scores))
                                 entry_count += 1
-                                print 'number of entries: %d' % entry_count
+                                print('number of entries: %d' % entry_count)
                             del seq
 
                             return
@@ -86,12 +86,11 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
                         scores = getscores(score_d, aalist, seq)
                         ofile.write('%s|%s\n' % (location, scores))
                         entry_count += 1
-                        print 'number of entries: %d' % entry_count
+                        print('number of entries: %d' % entry_count)
                         if outsize != 'all':
                             if entry_count == outsize:
                                 break
                     del seq
-
 
 
 def write_label_seq_file(file_in, file_out, write_file=0):
@@ -99,7 +98,7 @@ def write_label_seq_file(file_in, file_out, write_file=0):
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
             count = i + 1
-        print 'num lines: %d' % count
+        print('num lines: %d' % count)
     with open(file_in, 'r') as ifile:
         with open(file_out, 'a') as ofile:
             for i in range(count):
@@ -118,7 +117,7 @@ def write_label_seq_file(file_in, file_out, write_file=0):
 
                     location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
                     location = location_search.group('location').rstrip()
-                    print location
+                    print(location)
 
                 else:
                     seq = ''
@@ -159,12 +158,12 @@ def find_unique_labels(filename):
             else:
                 d[label] = 1
 
-        for k,v in d.iteritems():
-            print "l: %s count:%d" % (k,v)
+        for k, v in d.iteritems():
+            print("l: %s count:%d" % (k, v))
 
 
 def check_label_seq_file_validity(filename):
-    print "\nchecking validity of output file..."
+    print("\nchecking validity of output file...")
     non_alpha_count = 0
     invalid_label_count = 0
     invalid_chars = ['[', ']', '-', ',', '.', '|', '\\']
@@ -174,20 +173,20 @@ def check_label_seq_file_validity(filename):
             label, seq = l.strip().split('|')
 
             if not seq.isalpha():
-                print "non alpha detected in seq!"
+                print("non alpha detected in seq!")
                 non_alpha_count += 1
                 for i in seq:
                     if not i.isalpha():
-                        print i
+                        print(i)
 
             if any(c in label for c in invalid_chars):
                 invalid_label_count += 1
-                print label
+                print(label)
 
         if non_alpha_count != 0 or invalid_label_count != 0:
             raise Exception("output file not valid")
         else:
-            print "\noutput file seems fine\n"
+            print("\noutput file seems fine\n")
 
 
 if __name__ == '__main__':
@@ -210,5 +209,5 @@ if __name__ == '__main__':
     if os.path.exists(output_file1) and enable_write != 0:
         os.remove(output_file1)
     write_label_score_file(input_file, output_file1, write_file=enable_write, outsize=size)
-    print '%s contains these labels:' % output_file1
+    print('%s contains these labels:' % output_file1)
     find_unique_labels(output_file1)
