@@ -33,8 +33,8 @@ def getscores(d, aalist, seq):
 
 
 def get_specific_label(line):
-    location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])(\])$)", line)
-    location = location_search.group('location1').rstrip()
+    location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])( |)$)", line)
+    location = location_search.group('location1').rstrip().split(',')[0]
     return location
 
 
@@ -124,7 +124,7 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                     # do something
                     # print seq + '\n'
 
-                    if (location != 'NULL') and (location != '\N') and (write_file != 0):
+                    if (location != 'NULL') and ('\N' not in location) and (write_file != 0):
                         scores = getscores(score_d, aalist, seq)
                         ofile.write('%s|%s\n' % (location, scores))
                         entry_count += 1
@@ -275,7 +275,7 @@ if __name__ == '__main__':
     ENABLE_WRITE = 1
 
     # number of entries to output in the label & scores file.... max is 1257123
-    size = 20000
+    size = 100000
 
     # testing
     # get_general_label_test(input_file)
@@ -290,6 +290,6 @@ if __name__ == '__main__':
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
     if os.path.exists(OUTPUT_FILE1) and ENABLE_WRITE != 0:
         os.remove(OUTPUT_FILE1)
-    write_label_score_file(INPUT_FILE, OUTPUT_FILE1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
+    write_label_score_file(INPUT_FILE, OUTPUT_FILE1, write_file=ENABLE_WRITE, outsize=size, group_label=False)
     print('\n%s contains these labels:' % OUTPUT_FILE1)
     find_unique_labels(OUTPUT_FILE1)

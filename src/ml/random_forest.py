@@ -2,7 +2,7 @@ import sys
 
 sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import ShuffleSplit
@@ -35,15 +35,17 @@ def get_feature_vector_length(file):
 if __name__ == '__main__':
     # number of divisions for cross validation
     vec_length = get_feature_vector_length(INPUT_FILE)
-    cross_val = 5
+    CROSS_VAL = 5
     # Y - labels, X - features
-    Y, X = read_preprocessed_data(INPUT_FILE, FEATURES_FILE, cross_val)
+    Y, X = read_preprocessed_data(INPUT_FILE, FEATURES_FILE, CROSS_VAL)
     # x_train = pd.read_csv(INPUT_FILE, sep='|', usecols=range(1, vec_length), header=None)
     # y_train = pd.read_csv(INPUT_FILE, sep='|', usecols=[0], header=None)
 
     # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.4, random_state=0)
-    rf = RandomForestClassifier(n_estimators=10, criterion='gini', max_features='auto',
+    rf = RandomForestClassifier(n_estimators=50, criterion='gini', max_features='auto',
                                 min_samples_split=2, verbose=1)
+    ef = ExtraTreesClassifier(n_estimators=50, criterion='gini', max_features='auto',
+                              min_samples_split=2, verbose=1)
 
     x_len_before = len(X[0])
     # X = normalize(X, norm='l2', axis=1)
@@ -52,8 +54,14 @@ if __name__ == '__main__':
     X = StandardScaler().fit_transform(X)
     print('# features used: %d / %d' % (len(X[0]), x_len_before))
 
-    scores = cross_val_score(rf, X, Y, cv=cross_val)
+    print('RandomForestClassifier')
+    scores = cross_val_score(rf, X, Y, cv=CROSS_VAL)
+    print(scores)
+    # The mean score and the 95% confidence interval
+    print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
+    print('ExtraTreesClassifier')
+    scores = cross_val_score(ef, X, Y, cv=CROSS_VAL)
     print(scores)
     # The mean score and the 95% confidence interval
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))

@@ -116,9 +116,20 @@ if __name__ == '__main__':
 
     print("--- %s seconds ---" % (end_time - start_time))
 
-    # Curr best: 100k samples, cv=5
+    # plants - specific
+    # 100k samples, cv=5
     # Accuracy: 0.52(+ / - 0.07)
     # 814.231223106 seconds
+
+    # animals - general
+    # 100k samples, cv=5
+    # Accuracy: 0.57(+ / - 0.07)
+    # 644.733369827 seconds
+
+    # animal - specific
+    # 100k samples, cv=5
+    # Accuracy: 0.55(+ / - 0.05)
+    # 643.399658918 seconds
 
 
 
