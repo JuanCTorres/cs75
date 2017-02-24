@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import ShuffleSplit
 from sklearn.feature_selection import SelectKBest, f_classif, VarianceThreshold
-from sklearn.preprocessing import Normalizer, normalize
+from sklearn.preprocessing import Normalizer, normalize, StandardScaler
 import pandas as pd
 
 INPUT_FILE = '../../data/plants/label_scores.txt'
@@ -35,18 +35,19 @@ if __name__ == '__main__':
     cross_val = 5
     # Y - labels, X - features
     Y, X = read_preprocessed_data(INPUT_FILE, FEATURES_FILE, cross_val)
-    x_train = pd.read_csv(INPUT_FILE, sep='|', usecols=range(1, vec_length), header=None)
-    y_train = pd.read_csv(INPUT_FILE, sep='|', usecols=[0], header=None)
+    # x_train = pd.read_csv(INPUT_FILE, sep='|', usecols=range(1, vec_length), header=None)
+    # y_train = pd.read_csv(INPUT_FILE, sep='|', usecols=[0], header=None)
 
     # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.4, random_state=0)
     rf = RandomForestClassifier(n_estimators=10, criterion='gini', max_features='auto',
                                 min_samples_split=2, verbose=1)
 
-    X = normalize(X, norm='l2', axis=1, copy=False)
-    print('# features before var filter: %d' % len(X[0]))
+    x_len_before = len(X[0])
+    # X = normalize(X, norm='l2', axis=1)
     # X = VarianceThreshold(threshold=0.00000005).fit_transform(X)
-    print('# features after var filter: %d' % len(X[0]))
-    X = SelectKBest(f_classif, k=50).fit_transform(X, Y)
+    # X = SelectKBest(f_classif, k=50).fit_transform(X, Y)
+    X = StandardScaler().fit_transform(X)
+    print('# features used: %d / %d' % (len(X[0]), x_len_before))
 
     scores = cross_val_score(rf, X, Y, cv=cross_val)
 
