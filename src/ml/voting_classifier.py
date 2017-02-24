@@ -27,7 +27,10 @@ sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 
 
-INPUT_FILE = '../../data/plants/label_scores.txt'
+# ANIMALS
+INPUT_FILE = "../../data/animals/label_scores.txt"
+# PLANTS
+# INPUT_FILE = "../../data/plants/label_scores.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
 
 VERBOSE = True

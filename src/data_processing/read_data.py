@@ -33,15 +33,22 @@ def getscores(d, aalist, seq):
 
 
 def get_specific_label(line):
-    location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])$)", line)
+    location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])(\])$)", line)
     location = location_search.group('location1').rstrip()
     return location
 
 
 def get_general_label(line):
-    location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])$)", line)
-    location = location_search.group('location1').split('(')[0].rstrip()
-    return location
+    location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])( |)$)", line)
+    try:
+        location = location_search.group('location1')
+        # funny looking because animal and plants formatting differs
+        general_location = location.split('(')[0].rstrip().split(',')[0]
+    except AttributeError:
+        print('line: ' + line)
+        # print('location: ' + location)
+        assert False
+    return general_location
 
 
 def get_general_label_test(file_in):
@@ -49,6 +56,7 @@ def get_general_label_test(file_in):
     with open(file_in, 'r') as ifile:
         for line in ifile:
             if line[0] == '>':
+                # print(line)
                 location = get_general_label(line)
 
                 if location in d.keys():
@@ -100,7 +108,7 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                         if l == '':  # EOF
                             # do something
                             # print seq
-                            if location != 'NULL' and write_file != 0:
+                            if (location != 'NULL') and (location != '\N') and (write_file != 0):
                                 scores = getscores(score_d, aalist, seq)
                                 ofile.write('%s|%s\n' % (location, scores))
                                 entry_count += 1
@@ -116,7 +124,7 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                     # do something
                     # print seq + '\n'
 
-                    if location != 'NULL' and write_file != 0:
+                    if (location != 'NULL') and (location != '\N') and (write_file != 0):
                         scores = getscores(score_d, aalist, seq)
                         ofile.write('%s|%s\n' % (location, scores))
                         entry_count += 1
@@ -255,14 +263,14 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
 
 if __name__ == '__main__':
     # PLANTS
-    input_file = "../../data/plants/all_plants.fas_updated04152015"
-    output_file0 = "../../data/plants/label_seq.txt"
-    output_file1 = "../../data/plants/label_scores.txt"
+    # INPUT_FILE = "../../data/plants/all_plants.fas_updated04152015"
+    # OUTPUT_FILE0 = "../../data/plants/label_seq.txt"
+    # OUTPUT_FILE1 = "../../data/plants/label_scores.txt"
 
     # ANIMALS
-    # input_file = "../../data/animals/metazoa_proteins.fas"
-    # output_file0 = "../../data/animals/label_seq.txt"
-    # output_file1 = "../../data/animals/label_scores.txt"
+    INPUT_FILE = "../../data/animals/metazoa_proteins.fas"
+    OUTPUT_FILE0 = "../../data/animals/label_seq.txt"
+    OUTPUT_FILE1 = "../../data/animals/label_scores.txt"
 
     ENABLE_WRITE = 1
 
@@ -280,8 +288,8 @@ if __name__ == '__main__':
     # check_label_seq_file_validity(output_file0)
 
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
-    if os.path.exists(output_file1) and ENABLE_WRITE != 0:
-        os.remove(output_file1)
-    write_label_score_file(input_file, output_file1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
-    print('\n%s contains these labels:' % output_file1)
-    find_unique_labels(output_file1)
+    if os.path.exists(OUTPUT_FILE1) and ENABLE_WRITE != 0:
+        os.remove(OUTPUT_FILE1)
+    write_label_score_file(INPUT_FILE, OUTPUT_FILE1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
+    print('\n%s contains these labels:' % OUTPUT_FILE1)
+    find_unique_labels(OUTPUT_FILE1)

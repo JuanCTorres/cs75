@@ -15,11 +15,17 @@ import pandas
 import math
 
 
+# ANIMALS
+INPUT_FILE = "../../data/animals/label_scores.txt"
+# PLANTS
+# INPUT_FILE = "../../data/plants/label_scores.txt"
+
+
 seed = 7
 numpy.random.seed(seed)
 # load dataset
 
-dataframe = pandas.read_csv("../../data/plants/label_scores.txt", delimiter='|', header=None)
+dataframe = pandas.read_csv(INPUT_FILE, delimiter='|', header=None)
 dataset = dataframe.values
 
 X = dataset[:, 1:].astype(float)
