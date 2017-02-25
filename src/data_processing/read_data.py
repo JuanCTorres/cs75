@@ -290,6 +290,6 @@ if __name__ == '__main__':
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
     if os.path.exists(OUTPUT_FILE1) and ENABLE_WRITE != 0:
         os.remove(OUTPUT_FILE1)
-    write_label_score_file(INPUT_FILE, OUTPUT_FILE1, write_file=ENABLE_WRITE, outsize=size, group_label=False)
+    write_label_score_file(INPUT_FILE, OUTPUT_FILE1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
     print('\n%s contains these labels:' % OUTPUT_FILE1)
     find_unique_labels(OUTPUT_FILE1)
