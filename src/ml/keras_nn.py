@@ -13,6 +13,7 @@ from keras.utils import np_utils
 import numpy
 import pandas
 import math
+import time
 
 
 # ANIMALS
@@ -21,8 +22,8 @@ INPUT_FILE = "../../data/animals/label_scores.txt"
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 
 
-seed = 7
-numpy.random.seed(seed)
+RANDSEED = 7
+numpy.random.seed(RANDSEED)
 # load dataset
 
 dataframe = pandas.read_csv(INPUT_FILE, delimiter='|', header=None)
@@ -35,7 +36,7 @@ x_len_before = len(X[0])
 # X = normalize(X, norm='l2', axis=1)
 # X = VarianceThreshold(threshold=0.00000005).fit_transform(X)
 # X = SelectKBest(f_classif, k=50).fit_transform(X, Y)
-X = StandardScaler().fit_transform(X)
+# X = StandardScaler().fit_transform(X)
 print('# features used: %d / %d' % (len(X[0]), x_len_before))
 
 in_dim = len(X[0])
@@ -78,6 +79,13 @@ estimator = KerasClassifier(build_fn=basic_model, nb_epoch=5, batch_size=5, verb
 # print(predictions)
 # print(encoder.inverse_transform(predictions))
 
-kfold = KFold(n_splits=5, shuffle=True, random_state=seed)
+kfold = KFold(n_splits=5, shuffle=True)
+start_time = time.time()
+
 results = cross_val_score(estimator, X, dummy_y, cv=kfold)
+end_time = time.time()
+
 print("\nBaseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
+print("--- %s seconds ---" % (end_time - start_time))
+
+# 58.30% (0.38%) with top10
