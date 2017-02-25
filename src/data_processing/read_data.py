@@ -32,8 +32,44 @@ def getscores(d, aalist, seq):
     return '|'.join(score_list)
 
 
-def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
-    print 'building and writing %s' % file_out
+def get_specific_label(line):
+    location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])( |)$)", line)
+    location = location_search.group('location1').rstrip().split(',')[0]
+    return location
+
+
+def get_general_label(line):
+    location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])( |)$)", line)
+    try:
+        location = location_search.group('location1')
+        # funny looking because animal and plants formatting differs
+        general_location = location.split('(')[0].rstrip().split(',')[0]
+    except AttributeError:
+        print('line: ' + line)
+        # print('location: ' + location)
+        assert False
+    return general_location
+
+
+def get_general_label_test(file_in):
+    d = dict()
+    with open(file_in, 'r') as ifile:
+        for line in ifile:
+            if line[0] == '>':
+                # print(line)
+                location = get_general_label(line)
+
+                if location in d.keys():
+                    d[location] += 1
+                else:
+                    d[location] = 1
+
+    for k, v in d.items():
+        print('k: %-30s v: %d' % (k, v))
+
+
+def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group_label=True):
+    print('building and writing %s' % file_out)
 
     count = 0
     entry_count = 0
@@ -44,7 +80,7 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
             count = i + 1
-        print 'raw data lines: %d' % count
+        print('raw data lines: %d' % count)
     with open(file_in, 'r') as ifile:
         with open(file_out, 'a') as ofile:
             for i in range(count):
@@ -53,8 +89,13 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
                 # if i == 1000:
                 #     break
                 if l[0] == '>':
-                    location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
-                    location = location_search.group('location').rstrip()
+                    if group_label:
+                        location = get_general_label(l)
+                    else:
+                        location = get_specific_label(l)
+
+                    # location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
+                    # location = location_search.group('location').rstrip()
                     # print location
 
                 else:
@@ -67,11 +108,11 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
                         if l == '':  # EOF
                             # do something
                             # print seq
-                            if location != 'NULL' and write_file != 0:
+                            if (location != 'NULL') and (location != '\N') and (write_file != 0):
                                 scores = getscores(score_d, aalist, seq)
                                 ofile.write('%s|%s\n' % (location, scores))
                                 entry_count += 1
-                                print 'number of entries: %d' % entry_count
+                                print('number of entries: %d' % entry_count)
                             del seq
 
                             return
@@ -83,11 +124,11 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all'):
                     # do something
                     # print seq + '\n'
 
-                    if location != 'NULL' and write_file != 0:
+                    if (location != 'NULL') and ('\N' not in location) and (write_file != 0):
                         scores = getscores(score_d, aalist, seq)
                         ofile.write('%s|%s\n' % (location, scores))
                         entry_count += 1
-                        print 'number of entries: %d' % entry_count
+                        print('number of entries: %d' % entry_count)
                         if outsize != 'all':
                             if entry_count == outsize:
                                 break
@@ -99,7 +140,7 @@ def write_label_seq_file(file_in, file_out, write_file=0):
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
             count = i + 1
-        print 'num lines: %d' % count
+        print('num lines: %d' % count)
     with open(file_in, 'r') as ifile:
         with open(file_out, 'a') as ofile:
             for i in range(count):
@@ -118,7 +159,7 @@ def write_label_seq_file(file_in, file_out, write_file=0):
 
                     location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
                     location = location_search.group('location').rstrip()
-                    print location
+                    print(location)
 
                 else:
                     seq = ''
@@ -160,11 +201,11 @@ def find_unique_labels(filename):
                 d[label] = 1
 
         for k, v in d.iteritems():
-            print "l: %s count:%d" % (k, v)
+            print('k: %-30s v: %d' % (k, v))
 
 
 def check_label_seq_file_validity(filename):
-    print "\nchecking validity of output file..."
+    print("\nchecking validity of output file...")
     non_alpha_count = 0
     invalid_label_count = 0
     invalid_chars = ['[', ']', '-', ',', '.', '|', '\\']
@@ -174,20 +215,20 @@ def check_label_seq_file_validity(filename):
             label, seq = l.strip().split('|')
 
             if not seq.isalpha():
-                print "non alpha detected in seq!"
+                print("non alpha detected in seq!")
                 non_alpha_count += 1
                 for i in seq:
                     if not i.isalpha():
-                        print i
+                        print(i)
 
             if any(c in label for c in invalid_chars):
                 invalid_label_count += 1
-                print label
+                print(label)
 
         if non_alpha_count != 0 or invalid_label_count != 0:
             raise Exception("output file not valid")
         else:
-            print "\noutput file seems fine\n"
+            print("\noutput file seems fine\n")
 
 
 def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0, format='default'):
@@ -220,15 +261,23 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
 
 
 if __name__ == '__main__':
-    input_file = "../../data/plants/all_plants.fas_updated04152015"
-    # input_file = '/Volumes/RAMDisk/all_plants.fas_updated04152015'
-    output_file0 = "../../data/plants/label_seq.txt"
-    output_file1 = "../../data/plants/label_scores.txt"
-    # output_file1 = "/Volumes/RAMDisk/label_scores.txt"
-    enable_write = 1
+    # PLANTS
+    # INPUT_FILE = "../../data/plants/all_plants.fas_updated04152015"
+    # OUTPUT_FILE0 = "../../data/plants/label_seq.txt"
+    # OUTPUT_FILE1 = "../../data/plants/label_scores.txt"
+
+    # ANIMALS
+    INPUT_FILE = "../../data/animals/metazoa_proteins.fas"
+    OUTPUT_FILE0 = "../../data/animals/label_seq.txt"
+    OUTPUT_FILE1 = "../../data/animals/label_scores.txt"
+
+    ENABLE_WRITE = 1
 
     # number of entries to output in the label & scores file.... max is 1257123
-    size = 20000
+    size = 100000
+
+    # testing
+    # get_general_label_test(input_file)
 
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SEQUENCE file
     # if os.path.exists(output_file0) and enable_write != 0:
@@ -238,8 +287,8 @@ if __name__ == '__main__':
     # check_label_seq_file_validity(output_file0)
 
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
-    if os.path.exists(output_file1) and enable_write != 0:
-        os.remove(output_file1)
-    write_label_score_file(input_file, output_file1, write_file=enable_write, outsize=size)
-    print('%s contains these labels:' % output_file1)
-    find_unique_labels(output_file1)
+    if os.path.exists(OUTPUT_FILE1) and ENABLE_WRITE != 0:
+        os.remove(OUTPUT_FILE1)
+    write_label_score_file(INPUT_FILE, OUTPUT_FILE1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
+    print('\n%s contains these labels:' % OUTPUT_FILE1)
+    find_unique_labels(OUTPUT_FILE1)

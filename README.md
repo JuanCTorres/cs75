@@ -21,9 +21,12 @@ order of the aaindices in aaindex_used.txt
 
 
 # How to process data
-* run read_data.py
-* 'size' variable in \_\_main__ determines the number of data points in output file ./data/plants/label_scores.txt.
+* run `read_data.py`
+* `size` variable in `__main__` determines the number of data points in output file ./data/plants/label_scores.txt.
 Feel free to change this variable.
+* `generalize_label` option in `write_label_score_file()` allows you to how to group certain labels together.
+    * for e.g. setting `generalize_label` to `TRUE` will result in labels such as 'Mitochondria' and 
+    'Mitochondria (membrane)' being put under 'Mitochondria'
 
 # Reading in preprocessed data
 use read_data.read_preprocessed_data() which returns a tuple of labels and features
