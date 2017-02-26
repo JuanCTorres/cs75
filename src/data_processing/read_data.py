@@ -1,9 +1,9 @@
-import os
-import re
-from collections import Counter
+import os, re, sys
 import read_dicts
+from collections import Counter
 import pandas as pd
 
+ENABLE_WRITE = 1
 
 def getscores(d, aalist, seq):
     score_list = list()
@@ -94,9 +94,9 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                     else:
                         location = get_specific_label(l)
 
-                    # location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
-                    # location = location_search.group('location').rstrip()
-                    # print location
+                        # location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
+                        # location = location_search.group('location').rstrip()
+                        # print location
 
                 else:
                     seq = ''
@@ -241,12 +241,11 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
     """
     with open(input_file, 'r') as ifile:
         lines = [line.rstrip().split('|') for line in ifile.readlines()]
-        all_labels = [line[0] for line in lines]
-        occurrences = Counter(all_labels)
-
     with open(features_file, 'r') as f:
         features_used = [line.strip() for line in f.readlines()]
 
+    all_labels = [line[0] for line in lines]
+    occurrences = Counter(all_labels)
     labeled_data = [(lines[i][0], map(float, lines[i][1:])) for i in range(len(lines)) if
                     occurrences[all_labels[i]] >= exclude_labels_less_than]
     labels, feature_matrix = zip(*labeled_data)
@@ -262,17 +261,21 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
 
 
 if __name__ == '__main__':
-    # PLANTS
-    # INPUT_FILE = "../../data/plants/all_plants.fas_updated04152015"
-    # OUTPUT_FILE0 = "../../data/plants/label_seq.txt"
-    # OUTPUT_FILE1 = "../../data/plants/label_scores.txt"
+    if len(sys.argv) > 1:
+        dataset = sys.argv[1]
+    else:
+        sys.exit(1)
 
-    # ANIMALS
-    INPUT_FILE = "../../data/animals/metazoa_proteins.fas"
-    OUTPUT_FILE0 = "../../data/animals/label_seq.txt"
-    OUTPUT_FILE1 = "../../data/animals/label_scores.txt"
-
-    ENABLE_WRITE = 1
+    if dataset.lower== 'plants':
+        # PLANTS
+        input_file = "../../data/plants/all_plants.fas_updated04152015"
+        output_file_0 = "../../data/plants/label_seq.txt"
+        output_file_1 = "../../data/plants/label_scores.txt"
+    else:
+        # ANIMALS
+        input_file = "../../data/animals/metazoa_proteins.fas"
+        output_file_0 = "../../data/animals/label_seq.txt"
+        output_file_1 = "../../data/animals/label_scores.txt"
 
     # number of entries to output in the label & scores file.... max is 1257123
     size = 100000
@@ -288,8 +291,8 @@ if __name__ == '__main__':
     # check_label_seq_file_validity(output_file0)
 
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
-    if os.path.exists(OUTPUT_FILE1) and ENABLE_WRITE != 0:
-        os.remove(OUTPUT_FILE1)
-    write_label_score_file(INPUT_FILE, OUTPUT_FILE1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
-    print('\n%s contains these labels:' % OUTPUT_FILE1)
-    find_unique_labels(OUTPUT_FILE1)
+    if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
+        os.remove(output_file_1)
+    write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
+    print('\n%s contains these labels:' % output_file_1)
+    find_unique_labels(output_file_1)

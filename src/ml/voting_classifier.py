@@ -11,7 +11,6 @@ from sklearn.preprocessing import Normalizer, normalize, StandardScaler
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.linear_model import SGDClassifier
 
-
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC, NuSVC, LinearSVC
@@ -21,11 +20,12 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis, LinearDiscriminantAnalysis
+from scikitplot import classifier_factory
 
 import sys
+
 sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
-
 
 # ANIMALS
 INPUT_FILE = "../../data/animals/label_scores.txt"
@@ -79,36 +79,31 @@ RANDSEED = 7
 # ]
 
 NAMES = [
-    "Nearest Neighbors",
-    "SGD",
-    "Decision Tree",
-    "Random Forest",
-    "Neural Net",
-    "LQA"
+    'Nearest Neighbors',
+    'SGD',
+    'Decision Tree',
+    'Random Forest',
+    'Neural Net',
+    'LQA'
 ]
 
 CLASSIFIERS = [
-    KNeighborsClassifier(17), # ~49% acc
-    SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1, eta0=0.0,    # ~0.41 acc, 3 sec
+    KNeighborsClassifier(17),  # ~49% acc
+    SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1, eta0=0.0,  # ~0.41 acc, 3 sec
                   fit_intercept=True, l1_ratio=0.15, learning_rate='optimal', loss='log',
                   n_iter=5, n_jobs=1, penalty='l2', power_t=0.5, random_state=None,
                   shuffle=True, verbose=VERBOSE, warm_start=False),
-    DecisionTreeClassifier(max_depth=None),     # 0.41 acc, 20 sec
-    RandomForestClassifier(n_estimators=10, criterion='gini', max_features='auto',      # ~0.49 acc, 12 sec
+    DecisionTreeClassifier(max_depth=None),  # 0.41 acc, 20 sec
+    RandomForestClassifier(n_estimators=10, criterion='gini', max_features='auto',  # ~0.49 acc, 12 sec
                            min_samples_split=2, verbose=VERBOSE),
-    MLPClassifier(alpha=1, verbose=VERBOSE),        # 0.48 acc, 29 sec
-    LinearDiscriminantAnalysis()        # 0.46 acc, 2 sec
+    MLPClassifier(alpha=1, verbose=VERBOSE),  # 0.48 acc, 29 sec
+    LinearDiscriminantAnalysis()  # 0.46 acc, 2 sec
 ]
 
 
 def generate_tuple_lists(cla, tags):
     assert len(cla) == len(tags)
-    l = list()
-
-    for i in range(0, len(cla)):
-        l.append((tags[i], cla[i]))
-
-    return l
+    return [(tags[i], cla[i]) for i in range(len(cla))]
 
 
 if __name__ == '__main__':
@@ -131,6 +126,7 @@ if __name__ == '__main__':
 
     estimators = generate_tuple_lists(CLASSIFIERS, NAMES)
     vc = VotingClassifier(estimators, voting='hard')
+    nb = classifier_factory(vc)
 
     kfold = KFold(n_splits=CROSS_VAL, shuffle=True)
 
@@ -145,6 +141,7 @@ if __name__ == '__main__':
 
     print("--- %s seconds ---" % (end_time - start_time))
 
+    nb.plot_roc_curve(X, Y)
 
     # New - Shuffled
     # plants - general - hardvote - low corr
@@ -206,28 +203,27 @@ if __name__ == '__main__':
 
 ##################
 
-    # plants - general - hardvote - all 123 labels
-    # 100k samples, cv=5
-    # Accuracy: 0.54(+ / - 0.09)
-    # 748.035544157 seconds
+# plants - general - hardvote - all 123 labels
+# 100k samples, cv=5
+# Accuracy: 0.54(+ / - 0.09)
+# 748.035544157 seconds
 
-    # plants - specific - hard vote - all 123 labels
-    # 100k samples, cv=5
-    # Accuracy: 0.52(+ / - 0.07)
-    # 814.231223106 seconds
+# plants - specific - hard vote - all 123 labels
+# 100k samples, cv=5
+# Accuracy: 0.52(+ / - 0.07)
+# 814.231223106 seconds
 
-    # animals - general - hard vote - all 123 labels
-    # 100k samples, cv=5
-    # Accuracy: 0.57(+ / - 0.07)
-    # 644.733369827 seconds
+# animals - general - hard vote - all 123 labels
+# 100k samples, cv=5
+# Accuracy: 0.57(+ / - 0.07)
+# 644.733369827 seconds
 
-    # animal - specific - hard vote - all 123 labels
-    # 100k samples, cv=5
-    # Accuracy: 0.55(+ / - 0.05)
-    # 643.399658918 seconds
+# animal - specific - hard vote - all 123 labels
+# 100k samples, cv=5
+# Accuracy: 0.55(+ / - 0.05)
+# 643.399658918 seconds
 
-    # plants - specific - hard - all 123 labels
-    # 25k sample, cv=5
-    # Accuracy: 0.50 (+/- 0.10)
-    # 128.024162769 seconds
-
+# plants - specific - hard - all 123 labels
+# 25k sample, cv=5
+# Accuracy: 0.50 (+/- 0.10)
+# 128.024162769 seconds
