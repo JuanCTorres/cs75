@@ -21,12 +21,12 @@ order of the aaindices in aaindex_used.txt
 
 
 # How to process data
-* run `read_data.py`
-* `size` variable in `__main__` determines the number of data points in output file ./data/plants/label_scores.txt.
-Feel free to change this variable.
-* `generalize_label` option in `write_label_score_file()` allows you to how to group certain labels together.
-    * for e.g. setting `generalize_label` to `TRUE` will result in labels such as 'Mitochondria' and 
-    'Mitochondria (membrane)' being put under 'Mitochondria'
+* Run `read_data.py animals` or `read_data.py plants` to read either the animal or plant data. If `group_similar_labels = True`,
+some labels will be grouped to produce fewer classes.
+    * For instance, setting `group_similar_labels` to `True` will result in labels such as 'Mitochondria' and 
+    'Mitochondria (membrane)' being read as 'Mitochondria'.
+    * The `size` variable in `__main__` determines the number of data points in output file ./data/plants/label_scores.txt. 
+    Feel free to change this variable.    
 
 # Reading in preprocessed data
 use read_data.read_preprocessed_data() which returns a tuple of labels and features
