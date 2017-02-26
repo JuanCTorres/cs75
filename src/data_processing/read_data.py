@@ -68,7 +68,7 @@ def get_general_label_test(file_in):
         print('k: %-30s v: %d' % (k, v))
 
 
-def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group_label=True):
+def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True):
     print('building and writing %s' % file_out)
 
     count = 0
@@ -89,7 +89,7 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                 # if i == 1000:
                 #     break
                 if l[0] == '>':
-                    if group_label:
+                    if group_similar_labels:
                         location = get_general_label(l)
                     else:
                         location = get_specific_label(l)
@@ -293,6 +293,6 @@ if __name__ == '__main__':
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
     if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
         os.remove(output_file_1)
-    write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
+    write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
     print('\n%s contains these labels:' % output_file_1)
     find_unique_labels(output_file_1)
