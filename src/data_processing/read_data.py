@@ -3,7 +3,11 @@ import read_dicts
 from collections import Counter
 import pandas as pd
 
+sys.path.append('.')
+
 ENABLE_WRITE = 1
+INDEX_NAMES_FILES = '../../data/aaindex/list_of_indices.txt'
+
 
 def getscores(d, aalist, seq):
     score_list = list()
@@ -134,9 +138,10 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                                 break
                     del seq
 
+
 def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True):
     print('building and writing %s' % file_out)
-    location_set, max_len, seq_count, long_count = set(),0,0,0
+    location_set, max_len, seq_count, long_count = set(), 0, 0, 0
     count = 0
     entry_count = 0
     with open(file_in, 'r') as ifile:
@@ -162,8 +167,8 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
                         if l == '':  # EOF
                             if (location != 'NULL') and (location != '\N') and (write_file != 0):
                                 ofile.write('%s|%s\n' % (location, seq))
-                                if len(seq)<=500:
-                                    long_count+=1
+                                if len(seq) <= 500:
+                                    long_count += 1
                                 location_set.add(location)
                                 entry_count += 1
                             del seq
@@ -177,19 +182,18 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
 
                     if (location != 'NULL') and ('\N' not in location) and (write_file != 0):
                         ofile.write('%s|%s\n' % (location, seq))
-                        if len(seq)<=500:
-                            long_count+=1
+                        if len(seq) <= 500:
+                            long_count += 1
                         location_set.add(location)
                         entry_count += 1
                         if outsize != 'all':
                             if entry_count == outsize:
                                 break
                     del seq
-    print("locations: "+str(location_set))
-    print("maximum sequence length: "+ str(max_len))
-    print("Total sequences: "+str(entry_count))
-    print("Long sequences: "+str(long_count))
-
+    print("locations: " + str(location_set))
+    print("maximum sequence length: " + str(max_len))
+    print("Total sequences: " + str(entry_count))
+    print("Long sequences: " + str(long_count))
 
 
 def write_label_seq_file(file_in, file_out, write_file=0):
@@ -317,23 +321,42 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
         raise Exception('Unknown format %s' % format)
 
 
+def get_index_names(index_code_list, index_info_file=INDEX_NAMES_FILES):
+    """
+
+    Returns the names and descriptions for a list of index codes
+
+    :param index_code_list: List of index codes, e.g. ['RADA880101','WILM950102']
+    :param index_info_file: File containing the names and descriptions of the indices.
+    :return: names and descriptions of the index codes in `index_code_list`
+    >>> ind = get_index_names(['RADA880101', 'BIOV880101', 'SNEP660102','WILM950102']); get_index_names(ind)
+    """
+    with open(index_info_file, 'r') as f:
+        lines = [line.strip().split(' ', 1) for line in f.readlines()]
+        lines = [line for line in lines if len(line) > 0]
+    code_dict = {code: desc for code, desc in lines}
+    return {name: code_dict[name] for name in index_code_list}
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         dataset = sys.argv[1]
     else:
         sys.exit(1)
 
-    if dataset.lower== 'plants':
-        # PLANTS
-        input_file = "../../data/plants/all_plants.fas_updated04152015"
-        output_file_0 = "../../data/plants/label_seq.txt"
-        output_file_1 = "../../data/plants/label_scores.txt"
+    if dataset.lower == 'plants':
+        data_folder = '../../data/plants'
+        input_file = '%s/all_plants.fas_updated04152015' % data_folder
+    elif dataset.lower == 'animals':
+        data_folder = '../../data/animals'
+        input_file = '%s/metazoa_proteins.fas' % data_folder
     else:
-        # ANIMALS
-        input_file = "../../data/animals/metazoa_proteins.fas"
-        output_file_0 = "../../data/animals/label_seq.txt"
-        output_file_1 = "../../data/animals/label_scores.txt"
-        output_file_2 = "../../data/animals/label_sequences.txt"
+        raise Exception('Please enter a valid dataset to use. Accepted: \'plants\' and \'animals\'')
+
+    output_file_0 = '%s/label_seq.txt' % data_folder
+    output_file_1 = '%s/label_scores.txt' % data_folder
+    output_file_2 = '%s/label_sequences.txt' % data_folder
+
     # number of entries to output in the label & scores file.... max is 1257123
     size = 100000
 
