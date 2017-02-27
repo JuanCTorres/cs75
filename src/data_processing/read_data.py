@@ -134,6 +134,63 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                                 break
                     del seq
 
+def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True):
+    print('building and writing %s' % file_out)
+    location_set, max_len, seq_count, long_count = set(),0,0,0
+    count = 0
+    entry_count = 0
+    with open(file_in, 'r') as ifile:
+        for i, l in enumerate(ifile):
+            count = i + 1
+        print('raw data lines: %d' % count)
+    with open(file_in, 'r') as ifile:
+        with open(file_out, 'a') as ofile:
+            for i in range(count):
+                l = ifile.readline()
+                if l[0] == '>':
+                    if group_similar_labels:
+                        location = get_general_label(l)
+                    else:
+                        location = get_specific_label(l)
+                else:
+                    seq = ''
+                    seq += l.rstrip()
+                    while True:
+                        x = ifile.tell()
+                        l = ifile.readline()
+
+                        if l == '':  # EOF
+                            if (location != 'NULL') and (location != '\N') and (write_file != 0):
+                                ofile.write('%s|%s\n' % (location, seq))
+                                if len(seq)<=500:
+                                    long_count+=1
+                                location_set.add(location)
+                                entry_count += 1
+                            del seq
+
+                            return
+                        elif l[0] == '>':
+                            ifile.seek(x)
+                            break
+                        else:
+                            seq += l.rstrip()
+
+                    if (location != 'NULL') and ('\N' not in location) and (write_file != 0):
+                        ofile.write('%s|%s\n' % (location, seq))
+                        if len(seq)<=500:
+                            long_count+=1
+                        location_set.add(location)
+                        entry_count += 1
+                        if outsize != 'all':
+                            if entry_count == outsize:
+                                break
+                    del seq
+    print("locations: "+str(location_set))
+    print("maximum sequence length: "+ str(max_len))
+    print("Total sequences: "+str(entry_count))
+    print("Long sequences: "+str(long_count))
+
+
 
 def write_label_seq_file(file_in, file_out, write_file=0):
     count = 0
@@ -276,7 +333,7 @@ if __name__ == '__main__':
         input_file = "../../data/animals/metazoa_proteins.fas"
         output_file_0 = "../../data/animals/label_seq.txt"
         output_file_1 = "../../data/animals/label_scores.txt"
-
+        output_file_2 = "../../data/animals/label_sequences.txt"
     # number of entries to output in the label & scores file.... max is 1257123
     size = 100000
 
@@ -286,13 +343,15 @@ if __name__ == '__main__':
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SEQUENCE file
     # if os.path.exists(output_file0) and enable_write != 0:
     #     os.remove(output_file0)
-    # write_label_seq_file(input_file, output_file0, write_file=enable_write)
+    # write_label_seq_file(input_file, output_file_0, write_file=0)
     # find_unique_labels(output_file0)
     # check_label_seq_file_validity(output_file0)
 
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
     if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
-        os.remove(output_file_1)
-    write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
-    print('\n%s contains these labels:' % output_file_1)
-    find_unique_labels(output_file_1)
+        os.remove(output_file_2)
+    # write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+    write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+
+    # print('\n%s contains these labels:' % output_file_1)
+    # find_unique_labels(output_file_1)
