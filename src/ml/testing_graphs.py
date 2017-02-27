@@ -13,7 +13,6 @@ import sys
 sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 
-
 CROSS_VAL = 5
 # ANIMALS
 INPUT_FILE = "../../data/animals/label_scores.txt"

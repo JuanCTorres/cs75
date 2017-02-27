@@ -14,15 +14,14 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_classification
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
 
-
-
 INPUT_FILE = "../../data/plants/label_scores.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
 CROSS_VAL = 5
+DEBUG = True
 
 
 def plot_feature_importance():
-    max_args = 40
+    max_args = 40  # max number of features to include in plot.
     sys.path.append('../')
     # ANIMALS
     # INPUT_FILE = "../../data/animals/label_scores.txt"
@@ -52,20 +51,21 @@ def plot_feature_importance():
         feature_names = [line.strip() for line in f.readlines()]
     sorted_feature_names = [feature_names[i] for i in indices]
 
-    # Print the feature ranking
-    print("Feature ranking:")
-    # for f in range(X.shape[1]):
-    #     print("%d. feature %d (%f)" % (f + 1, indices[f], importance_list[indices[f]]))
+    if DEBUG:
+        # Print the feature ranking
+        print('Feature ranking:')
+        for f in range(X.shape[1]):
+            print("%d. feature %d (%f)" % (f + 1, indices[f], importance_list[indices[f]]))
 
-    # Print the feature ranking by name
-    print("Features sorted by their score:")
-    print(sorted(zip(map(lambda x: round(x, 6), forest.feature_importances_), names), reverse=True))
+        # Print the feature ranking by name
+        print("Features sorted by their score:")
+        print(sorted(zip(map(lambda x: round(x, 6), forest.feature_importances_), names), reverse=True))
 
     # Plot the feature importances of the forest
     plt.figure()
     plt.title('Feature importance')
-    linspace = range(X.shape[1] + 1)
-    plt.bar(linspace[: max_args + 1], importance_list[indices[: max_args + 1]],
+    grid = range(X.shape[1] + 1)
+    plt.bar(grid[: max_args + 1], importance_list[indices[: max_args + 1]],
             color='r', yerr=std[indices[: max_args + 1]], align='center')
 
     plt.xticks(range(max_args + 1), sorted_feature_names[: max_args + 1], rotation='vertical')
