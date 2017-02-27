@@ -3,7 +3,11 @@ import read_dicts
 from collections import Counter
 import pandas as pd
 
+sys.path.append('.')
+
 ENABLE_WRITE = 1
+INDEX_NAMES_FILES = '../../data/aaindex/list_of_indices.txt'
+
 
 def getscores(d, aalist, seq):
     score_list = list()
@@ -317,23 +321,42 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
         raise Exception('Unknown format %s' % format)
 
 
+def get_index_names(index_code_list, index_info_file=INDEX_NAMES_FILES):
+    """
+
+    Returns the names and descriptions for a list of index codes
+
+    :param index_code_list: List of index codes, e.g. ['RADA880101','WILM950102']
+    :param index_info_file: File containing the names and descriptions of the indices.
+    :return: names and descriptions of the index codes in `index_code_list`
+    >>> ind = get_index_names(['RADA880101', 'BIOV880101', 'SNEP660102','WILM950102']); get_index_names(ind)
+    """
+    with open(index_info_file, 'r') as f:
+        lines = [line.strip().split(' ', 1) for line in f.readlines()]
+        lines = [line for line in lines if len(line) > 0]
+    code_dict = {code: desc for code, desc in lines}
+    return {name: code_dict[name] for name in index_code_list}
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         dataset = sys.argv[1]
     else:
         sys.exit(1)
 
-    if dataset.lower== 'plants':
-        # PLANTS
+    if dataset.lower == 'plants':
         input_file = "../../data/plants/all_plants.fas_updated04152015"
         output_file_0 = "../../data/plants/label_seq.txt"
         output_file_1 = "../../data/plants/label_scores.txt"
-    else:
-        # ANIMALS
+        output_file_2 = "../../data/plants/label_sequences.txt"
+    elif dataset.lower == 'animals':
         input_file = "../../data/animals/metazoa_proteins.fas"
         output_file_0 = "../../data/animals/label_seq.txt"
         output_file_1 = "../../data/animals/label_scores.txt"
         output_file_2 = "../../data/animals/label_sequences.txt"
+    else:
+        raise Exception('Please enter a valid dataset to use. Accepted: \'plants\' and \'animals\'')
+
     # number of entries to output in the label & scores file.... max is 1257123
     size = 100000
 
