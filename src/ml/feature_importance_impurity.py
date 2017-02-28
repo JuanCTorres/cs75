@@ -63,7 +63,7 @@ def plot_feature_importance():
 
     # Plot the feature importances of the forest
     plt.figure()
-    plt.title('Feature importance')
+    plt.title('Feature importance (plants)')
     grid = range(X.shape[1] + 1)
     plt.bar(grid[: max_args + 1], importance_list[indices[: max_args + 1]],
             color='r', yerr=std[indices[: max_args + 1]], align='center')
