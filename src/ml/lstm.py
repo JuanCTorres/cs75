@@ -33,7 +33,7 @@ sequence_file = "../../data/animals/label_sequences.txt"
 # np.savez("data_set.npz", X_data, Y_data)
 #
 
-data = np.load("data_set.npz")
+data = np.load("../../data/animals/LSTM_DATA.npz")
 X_data = data['arr_0']
 Y_data = data['arr_1']
 print("LOADING DATA COMPLETE. INITIALIZING MODEL...")
@@ -60,11 +60,11 @@ callbacks_list = [checkpoint, earlystop]
 
 print("MODEL INITIALIZATION COMPLETE. FITTING MODEL...")
 start_time = time.time()
-model.fit(X_data[:1000000], Y_data[:1000000], nb_epoch=20, batch_size=1000, verbose=1, callbacks=callbacks_list)
+model.fit(X_data[:1000000], Y_data[:1000000], nb_epoch=50, batch_size=1000, verbose=1, callbacks=callbacks_list)
 end_time = time.time()
 
 print("MODEL FITTING COMPLETE. SAVING MODEL...")
-model.save('LSTM2L20E1kB.hdf5')
+model.save('../../models/LSTM2L50E1kB.hdf5')
 print("SAVING MODEL COMPLETE. EVALUATING MODEL...")
 
 scores = model.evaluate(X_data[1000000:], Y_data[1000000:], verbose=1)
