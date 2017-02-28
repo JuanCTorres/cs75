@@ -16,21 +16,21 @@ locations = ['Vacuole', 'Golgi apparatus', 'Secreted', 'Cytoplasm', 'Mitochondri
 aa_dict = dict((aa, i) for i, aa in enumerate(amino_acids))
 location_dict = dict((aa, i) for i, aa in enumerate(locations))
 sequence_file = "../../data/animals/label_sequences.txt"
-# input_data = open(sequence_file)
-# sequence_len, sequence_num = 500,  1100000
-# X_data, Y_data = np.zeros([sequence_num, 1, sequence_len]), np.zeros(sequence_num)
-# for l_index, line in enumerate(input_data):
-# 	data = line.strip('\n').split("|")
-# 	location, sequence = data[0], data[1]
-# 	sequence_vector = np.array([aa_dict[element] for element in sequence])
-# 	if len(sequence_vector)>500:
-# 		X_data[l_index,0,:] = sequence_vector[:500]
-# 	else:
-# 		X_data[l_index,0,:] = np.concatenate((sequence_vector,np.zeros(sequence_len-len(sequence_vector))))
-# 	Y_data[l_index] = location_dict[location]
+input_data = open(sequence_file)
+sequence_len, sequence_num = 500,  1100000
+X_data, Y_data = np.zeros([sequence_num, 1, sequence_len]), np.zeros(sequence_num)
+for l_index, line in enumerate(input_data):
+    data = line.strip('\n').split("|")
+    location, sequence = data[0], data[1]
+    sequence_vector = np.array([aa_dict[element] for element in sequence])
+    if len(sequence_vector) > 500:
+        X_data[l_index, 0, :] = sequence_vector[:500]
+    else:
+        X_data[l_index, 0, :] = np.concatenate((sequence_vector, np.zeros(sequence_len-len(sequence_vector))))
+    Y_data[l_index] = location_dict[location]
 
-# print("INPUT COMPLETE")
-# np.savez("data_set.npz", X_data, Y_data)
+print("INPUT COMPLETE")
+np.savez("../../data/animals/LSTM_DATA.npz", X_data, Y_data)
 #
 
 data = np.load("../../data/animals/LSTM_DATA.npz")
