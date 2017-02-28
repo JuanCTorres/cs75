@@ -51,7 +51,7 @@ def build_model():
 	model.add(LSTM(256))
 	model.add(Dropout(0.2))
 	model.add(Dense(Y_data.shape[1], activation='softplus'))
-	model.compile(loss='categorical_crossentropy', optimizer='adamax')
+	model.compile(loss='categorical_crossentropy', optimizer='adamax', metrics=['accuracy'])
 	# define the checkpoint
 	filepath="weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
 	checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
@@ -59,7 +59,7 @@ def build_model():
 	return model
 
 
-estimator = KerasClassifier(build_fn=build_model, nb_epoch=10, batch_size=100, verbose=1)
+estimator = KerasClassifier(build_fn=build_model, nb_epoch=10, batch_size=1000, verbose=1)
 
 # X_train, X_test, Y_train, Y_test = train_test_split(X, dummy_y, test_size=0.33, random_state=seed)
 # estimator.fit(X_train, Y_train)
@@ -77,5 +77,4 @@ end_time = time.time()
 print("\nBaseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
 print("--- %s seconds ---" % (end_time - start_time))
 # fit the model
-model.fit(X_data, Y_data, nb_epoch=10, batch_size=64, callbacks=callbacks_list)
 print("MODEL FITTING COMPLETE")
