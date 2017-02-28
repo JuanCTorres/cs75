@@ -5,7 +5,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import LSTM
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.utils import np_utils
 import time
 
@@ -44,37 +44,29 @@ X_data = X_data / float(27)
 Y_data = np_utils.to_categorical(Y_data)
 
 # # define the LSTM model
-def build_model():
-	model = Sequential()
-	model.add(LSTM(256, input_shape=(X_data.shape[1], X_data.shape[2]), return_sequences=True))
-	model.add(Dropout(0.2))
-	model.add(LSTM(256))
-	model.add(Dropout(0.2))
-	model.add(Dense(Y_data.shape[1], activation='softplus'))
-	model.compile(loss='categorical_crossentropy', optimizer='adamax', metrics=['accuracy'])
-	# define the checkpoint
-	filepath="weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
-	checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
-	callbacks_list = [checkpoint]
-	return model
+model = Sequential()
+model.add(LSTM(256, input_shape=(X_data.shape[1], X_data.shape[2]), return_sequences=True))
+model.add(Dropout(0.2))
+model.add(LSTM(256))
+model.add(Dropout(0.2))
+model.add(Dense(Y_data.shape[1], activation='softplus'))
+model.compile(loss='categorical_crossentropy', optimizer='adamax', metrics=['accuracy'])
 
+# define the checkpoint
+filepath="weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
+checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+earlystop = EarlyStopping(monitor='loss', min_delta=1e-5, patience=0, verbose=1, mode='auto')
+callbacks_list = [checkpoint, earlystop]
 
-estimator = KerasClassifier(build_fn=build_model, nb_epoch=10, batch_size=1000, verbose=1)
-
-# X_train, X_test, Y_train, Y_test = train_test_split(X, dummy_y, test_size=0.33, random_state=seed)
-# estimator.fit(X_train, Y_train)
-# predictions = estimator.predict(X_test)
-# print(predictions)
-# print(encoder.inverse_transform(predictions))
-
-kfold = KFold(n_splits=5, shuffle=True)
 print("MODEL INITIALIZATION COMPLETE. FITTING MODEL...")
-
 start_time = time.time()
-results = cross_val_score(estimator, X_data, Y_data, cv=kfold)
+model.fit(X_data[:1000000], Y_data[:1000000], nb_epoch=20, batch_size=1000, verbose=1, callbacks=callbacks_list)
 end_time = time.time()
 
-print("\nBaseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
+print("MODEL FITTING COMPLETE. SAVING MODEL...")
+model.save('LSTM2L20E1kB.hdf5')
+print("SAVING MODEL COMPLETE. EVALUATING MODEL...")
+
+scores = model.evaluate(X_data[1000000:], Y_data[1000000:], verbose=1)
+print("\nBaseline: %.2f%%" % float(scores[1]*100))
 print("--- %s seconds ---" % (end_time - start_time))
-# fit the model
-print("MODEL FITTING COMPLETE")
