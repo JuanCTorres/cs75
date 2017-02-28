@@ -7,7 +7,7 @@ from sklearn.feature_selection import SelectKBest, f_classif, VarianceThreshold
 from sklearn.preprocessing import Normalizer, normalize
 from keras.optimizers import SGD, RMSprop, Adagrad, Adam, Adamax, Nadam
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Dropout, Activation
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.utils import np_utils
 import numpy
@@ -44,7 +44,7 @@ out_dim = len(set(Y))
 
 
 def basic_model():
-    # create model
+    create model
     model = Sequential()
 
     model.add(Dense(in_dim, input_dim=in_dim, init='normal', activation='softplus'))
@@ -61,6 +61,8 @@ def basic_model():
     nadam = Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08, schedule_decay=0.004)
     # Compile model
     model.compile(loss='categorical_crossentropy', optimizer=adamax, metrics=['accuracy'])
+
+
     return model
 
 
@@ -72,6 +74,7 @@ encoded_Y = encoder.transform(Y)
 # convert integers to dummy variables (i.e. one hot encoded)
 dummy_y = np_utils.to_categorical(encoded_Y)
 estimator = KerasClassifier(build_fn=basic_model, nb_epoch=5, batch_size=5, verbose=1)
+
 
 # X_train, X_test, Y_train, Y_test = train_test_split(X, dummy_y, test_size=0.33, random_state=seed)
 # estimator.fit(X_train, Y_train)
@@ -89,3 +92,5 @@ print("\nBaseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
 print("--- %s seconds ---" % (end_time - start_time))
 
 # 58.30% (0.38%) with top10
+
+#  https://keras.io/getting-started/sequential-model-guide/

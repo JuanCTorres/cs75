@@ -129,6 +129,45 @@ def select_dicts(dict, file_out):
     out_file.close()
 
 
+def find_similar(d, threshold):
+    sl = list()
+    target = list()
+    with open("../../data/aaindex/aaindex_search.txt", "r") as ifile:
+        for l in ifile:
+            # print l
+            sl.append(l.rstrip())
+
+    with open("../../data/aaindex/aaindex_target.txt", "r") as ifile:
+        for l in ifile:
+            # print l
+            target.append(l.rstrip())
+    all_related = set()
+    for e in target:
+        try:
+            for k, v in d[e].items():
+                print k
+                print v
+                if v >= threshold:
+                    all_related.add(k)
+        except KeyError:
+            print('KE: %s' % k)
+            pass
+
+    print target
+    print sl
+    for t in target:
+        all_related.add(t)
+
+    overlap = list()
+    # all_related.append(target)
+    print all_related
+    for i in sl:
+        if i in all_related:
+            overlap.append(i)
+
+    print("%d items found that have >= %f correlation" % (len(overlap), threshold))
+    print(overlap)
+
 if __name__ == '__main__':
 
     input_file0 = "../../data/aaindex/aaindex1.txt"
@@ -146,5 +185,7 @@ if __name__ == '__main__':
     print("len(d1): %d (should be 566)" % len(d1.keys()))
     print("len(d2): %d" % len(d2.keys()))
 
+    # find_similar(d2, 0.93)
+
     l = get_aaindex_list(input_file1)
-    # print l
+

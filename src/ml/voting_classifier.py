@@ -36,7 +36,7 @@ INPUT_FILE = "../../data/animals/label_scores.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
 
 VERBOSE = True
-CROSS_VAL = 5
+CROSS_VAL = 10
 
 RANDSEED = 7
 
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     # plants - general - hardvote - low corr
     # 100k samples, cv=5
     # Accuracy: 0.59 (+/- 0.01)
-    # 660.314031124 seconds ---
+    # 660.314031124 seconds
 
     # New - shuffled
     # plants - general - hardvote - top 20 plant labels
@@ -201,7 +201,27 @@ if __name__ == '__main__':
     # NEW - shuffled
     # animals - general - hardvote - top10 animal labels
     # Accuracy: 0.64(+ / - 0.01)
+    # 100k samples, cv=5
     # 104.858089209 seconds
+
+    # New -shuffled
+    # animals - general - hardvote - top20 animal labels
+    # 1000k samples, cv=5
+    # Accuracy: 0.66 (+/- 0.01)
+    # 3391.27164197 seconds
+
+    # New - shuffled
+    # animals - specific - hardvote - top20 labels
+    # 1000k samples, cv=5
+    # Accuracy: 0.61 (+/- 0.02)
+    # 3665.9706471 seconds
+
+    # New - shuffled
+    # animals - general - hardvote - top20 labels
+    # 1000k samples, cv=10
+    # Accuracy: 0.66 (+/- 0.01)
+    # 28797.847502 seconds
+
 
 
 ##################
