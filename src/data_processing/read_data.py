@@ -98,10 +98,6 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                     else:
                         location = get_specific_label(l)
 
-                        # location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
-                        # location = location_search.group('location').rstrip()
-                        # print location
-
                 else:
                     seq = ''
                     seq += l.rstrip()
@@ -125,8 +121,6 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                             break
                         else:
                             seq += l.rstrip()
-                    # do something
-                    # print seq + '\n'
 
                     if (location != 'NULL') and ('\N' not in location) and (write_file != 0):
                         scores = getscores(score_d, aalist, seq)
@@ -210,13 +204,6 @@ def write_label_seq_file(file_in, file_out, write_file=0):
                 # if i == 1000:
                 #     break
                 if l[0] == '>':
-                    # id_search = re.search(r"\|(?P<id>.+?)\|", l)
-                    # id = id_search.group('id').rstrip()
-                    # print id
-                    #
-                    # name_search = re.search(r"(\| )(?P<name>.+?)( \()", l)
-                    # name = name_search.group('name').rstrip()
-                    # print name
 
                     location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
                     location = location_search.group('location').rstrip()
@@ -341,17 +328,25 @@ def get_index_names(index_code_list, index_info_file=INDEX_NAMES_FILES):
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         dataset = sys.argv[1]
+        mode = sys.argv[2]
     else:
         sys.exit(1)
 
-    if dataset.lower == 'plants':
+    if dataset == 'plants':
         data_folder = '../../data/plants'
         input_file = '%s/all_plants.fas_updated04152015' % data_folder
-    elif dataset.lower == 'animals':
+    elif dataset == 'animals':
         data_folder = '../../data/animals'
         input_file = '%s/metazoa_proteins.fas' % data_folder
     else:
         raise Exception('Please enter a valid dataset to use. Accepted: \'plants\' and \'animals\'')
+
+    if mode == 'scores':
+        pass
+    elif mode == 'sequences':
+        pass
+    else:
+        raise Exception('Please enter either "scores" or "sequences" as the second argument')
 
     output_file_0 = '%s/label_seq.txt' % data_folder
     output_file_1 = '%s/label_scores.txt' % data_folder
@@ -364,17 +359,21 @@ if __name__ == '__main__':
     # get_general_label_test(input_file)
 
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SEQUENCE file
-    # if os.path.exists(output_file0) and enable_write != 0:
-    #     os.remove(output_file0)
+    # if os.path.exists(output_file_0) and ENABLE_WRITE != 0:
+    #     os.remove(output_file_0)
     # write_label_seq_file(input_file, output_file_0, write_file=0)
-    # find_unique_labels(output_file0)
-    # check_label_seq_file_validity(output_file0)
+    # # find_unique_labels(output_file_0)
+    # check_label_seq_file_validity(output_file_0)
 
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
-    if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
-        os.remove(output_file_2)
-    # write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
-    write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+    if mode == 'scores':
+        if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
+            os.remove(output_file_1)
+        write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+    if mode == 'sequences':
+        if os.path.exists(output_file_2) and ENABLE_WRITE != 0:
+            os.remove(output_file_2)
+        write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
 
-    # print('\n%s contains these labels:' % output_file_1)
-    # find_unique_labels(output_file_1)
+    print('\n%s contains these labels:' % output_file_1)
+    find_unique_labels(output_file_1)
