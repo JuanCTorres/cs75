@@ -24,6 +24,7 @@ import sys
 sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 
+
 VERBOSE = 0
 CROSS_VAL = 5
 # ANIMALS

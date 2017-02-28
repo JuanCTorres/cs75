@@ -1,8 +1,12 @@
-import os
-import re
-from collections import Counter
+import os, re, sys
 import read_dicts
+from collections import Counter
 import pandas as pd
+
+sys.path.append('.')
+
+ENABLE_WRITE = 1
+INDEX_NAMES_FILES = '../../data/aaindex/list_of_indices.txt'
 
 
 def getscores(d, aalist, seq):
@@ -68,7 +72,7 @@ def get_general_label_test(file_in):
         print('k: %-30s v: %d' % (k, v))
 
 
-def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group_label=True):
+def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True):
     print('building and writing %s' % file_out)
 
     count = 0
@@ -89,14 +93,14 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                 # if i == 1000:
                 #     break
                 if l[0] == '>':
-                    if group_label:
+                    if group_similar_labels:
                         location = get_general_label(l)
                     else:
                         location = get_specific_label(l)
 
-                    # location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
-                    # location = location_search.group('location').rstrip()
-                    # print location
+                        # location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
+                        # location = location_search.group('location').rstrip()
+                        # print location
 
                 else:
                     seq = ''
@@ -133,6 +137,63 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                             if entry_count == outsize:
                                 break
                     del seq
+
+
+def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True):
+    print('building and writing %s' % file_out)
+    location_set, max_len, seq_count, long_count = set(), 0, 0, 0
+    count = 0
+    entry_count = 0
+    with open(file_in, 'r') as ifile:
+        for i, l in enumerate(ifile):
+            count = i + 1
+        print('raw data lines: %d' % count)
+    with open(file_in, 'r') as ifile:
+        with open(file_out, 'a') as ofile:
+            for i in range(count):
+                l = ifile.readline()
+                if l[0] == '>':
+                    if group_similar_labels:
+                        location = get_general_label(l)
+                    else:
+                        location = get_specific_label(l)
+                else:
+                    seq = ''
+                    seq += l.rstrip()
+                    while True:
+                        x = ifile.tell()
+                        l = ifile.readline()
+
+                        if l == '':  # EOF
+                            if (location != 'NULL') and (location != '\N') and (write_file != 0):
+                                ofile.write('%s|%s\n' % (location, seq))
+                                if len(seq) <= 500:
+                                    long_count += 1
+                                location_set.add(location)
+                                entry_count += 1
+                            del seq
+
+                            return
+                        elif l[0] == '>':
+                            ifile.seek(x)
+                            break
+                        else:
+                            seq += l.rstrip()
+
+                    if (location != 'NULL') and ('\N' not in location) and (write_file != 0):
+                        ofile.write('%s|%s\n' % (location, seq))
+                        if len(seq) <= 500:
+                            long_count += 1
+                        location_set.add(location)
+                        entry_count += 1
+                        if outsize != 'all':
+                            if entry_count == outsize:
+                                break
+                    del seq
+    print("locations: " + str(location_set))
+    print("maximum sequence length: " + str(max_len))
+    print("Total sequences: " + str(entry_count))
+    print("Long sequences: " + str(long_count))
 
 
 def write_label_seq_file(file_in, file_out, write_file=0):
@@ -241,12 +302,11 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
     """
     with open(input_file, 'r') as ifile:
         lines = [line.rstrip().split('|') for line in ifile.readlines()]
-        all_labels = [line[0] for line in lines]
-        occurrences = Counter(all_labels)
-
     with open(features_file, 'r') as f:
         features_used = [line.strip() for line in f.readlines()]
 
+    all_labels = [line[0] for line in lines]
+    occurrences = Counter(all_labels)
     labeled_data = [(lines[i][0], map(float, lines[i][1:])) for i in range(len(lines)) if
                     occurrences[all_labels[i]] >= exclude_labels_less_than]
     labels, feature_matrix = zip(*labeled_data)
@@ -261,18 +321,41 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
         raise Exception('Unknown format %s' % format)
 
 
+def get_index_names(index_code_list, index_info_file=INDEX_NAMES_FILES):
+    """
+
+    Returns the names and descriptions for a list of index codes
+
+    :param index_code_list: List of index codes, e.g. ['RADA880101','WILM950102']
+    :param index_info_file: File containing the names and descriptions of the indices.
+    :return: names and descriptions of the index codes in `index_code_list`
+    >>> ind = get_index_names(['RADA880101', 'BIOV880101', 'SNEP660102','WILM950102']); get_index_names(ind)
+    """
+    with open(index_info_file, 'r') as f:
+        lines = [line.strip().split(' ', 1) for line in f.readlines()]
+        lines = [line for line in lines if len(line) > 0]
+    code_dict = {code: desc for code, desc in lines}
+    return {name: code_dict[name] for name in index_code_list}
+
+
 if __name__ == '__main__':
-    # PLANTS
-    # INPUT_FILE = "../../data/plants/all_plants.fas_updated04152015"
-    # OUTPUT_FILE0 = "../../data/plants/label_seq.txt"
-    # OUTPUT_FILE1 = "../../data/plants/label_scores.txt"
+    if len(sys.argv) > 1:
+        dataset = sys.argv[1]
+    else:
+        sys.exit(1)
 
-    # ANIMALS
-    INPUT_FILE = "../../data/animals/metazoa_proteins.fas"
-    OUTPUT_FILE0 = "../../data/animals/label_seq.txt"
-    OUTPUT_FILE1 = "../../data/animals/label_scores.txt"
+    if dataset.lower == 'plants':
+        data_folder = '../../data/plants'
+        input_file = '%s/all_plants.fas_updated04152015' % data_folder
+    elif dataset.lower == 'animals':
+        data_folder = '../../data/animals'
+        input_file = '%s/metazoa_proteins.fas' % data_folder
+    else:
+        raise Exception('Please enter a valid dataset to use. Accepted: \'plants\' and \'animals\'')
 
-    ENABLE_WRITE = 1
+    output_file_0 = '%s/label_seq.txt' % data_folder
+    output_file_1 = '%s/label_scores.txt' % data_folder
+    output_file_2 = '%s/label_sequences.txt' % data_folder
 
     # number of entries to output in the label & scores file.... max is 1257123
     size = 100000
@@ -283,13 +366,15 @@ if __name__ == '__main__':
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SEQUENCE file
     # if os.path.exists(output_file0) and enable_write != 0:
     #     os.remove(output_file0)
-    # write_label_seq_file(input_file, output_file0, write_file=enable_write)
+    # write_label_seq_file(input_file, output_file_0, write_file=0)
     # find_unique_labels(output_file0)
     # check_label_seq_file_validity(output_file0)
 
     # UNCOMMENT THIS BLOCK TO OUTPUT LABEL & SCORES file
-    if os.path.exists(OUTPUT_FILE1) and ENABLE_WRITE != 0:
-        os.remove(OUTPUT_FILE1)
-    write_label_score_file(INPUT_FILE, OUTPUT_FILE1, write_file=ENABLE_WRITE, outsize=size, group_label=True)
-    print('\n%s contains these labels:' % OUTPUT_FILE1)
-    find_unique_labels(OUTPUT_FILE1)
+    if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
+        os.remove(output_file_2)
+    # write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+    write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+
+    # print('\n%s contains these labels:' % output_file_1)
+    # find_unique_labels(output_file_1)
