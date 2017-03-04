@@ -77,6 +77,8 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
 
     count = 0
     entry_count = 0
+    duplicate_count = 0
+    uniques = set()
 
     score_d, corr_d = read_dicts.construct_dicts("../../data/aaindex/aaindex1.txt")
     aalist = read_dicts.get_aaindex_list("../../data/aaindex/aaindex_used.txt")
@@ -85,6 +87,8 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
         for i, l in enumerate(ifile):
             count = i + 1
         print('raw data lines: %d' % count)
+
+
     with open(file_in, 'r') as ifile:
         with open(file_out, 'a') as ofile:
             for i in range(count):
@@ -108,7 +112,8 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                         if l == '':  # EOF
                             # do something
                             # print seq
-                            if (location != 'NULL') and (location != '\N') and (write_file != 0):
+                            if (location != 'NULL') and (location != '\N') and (seq not in uniques) and (write_file != 0):
+                                uniques.add(seq)
                                 scores = getscores(score_d, aalist, seq)
                                 ofile.write('%s|%s\n' % (location, scores))
                                 entry_count += 1
@@ -121,12 +126,17 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                             break
                         else:
                             seq += l.rstrip()
+                    # if seq in uniques:
+                    #     duplicate_count += 1
+                    #     print 'found dup:' + location + ' ' + seq
+                    #     print duplicate_count
 
-                    if (location != 'NULL') and ('\N' not in location) and (write_file != 0):
+                    if (location != 'NULL') and ('\N' not in location) and (seq not in uniques) and (write_file != 0):
+                        uniques.add(seq)
                         scores = getscores(score_d, aalist, seq)
                         ofile.write('%s|%s\n' % (location, scores))
                         entry_count += 1
-                        print('number of entries: %d' % entry_count)
+                        # print('number of entries: %d' % entry_count)
                         if outsize != 'all':
                             if entry_count == outsize:
                                 break
@@ -138,6 +148,9 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
     location_set, max_len, seq_count, long_count = set(), 0, 0, 0
     count = 0
     entry_count = 0
+    uniques = set()
+    duplicate_count = 0
+
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
             count = i + 1
@@ -159,7 +172,8 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
                         l = ifile.readline()
 
                         if l == '':  # EOF
-                            if (location != 'NULL') and (location != '\N') and (write_file != 0):
+                            if (location != 'NULL') and (location != '\N') and (seq not in uniques) and (write_file != 0):
+                                uniques.add(seq)
                                 ofile.write('%s|%s\n' % (location, seq))
                                 if len(seq) <= 500:
                                     long_count += 1
@@ -174,7 +188,13 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
                         else:
                             seq += l.rstrip()
 
-                    if (location != 'NULL') and ('\N' not in location) and (write_file != 0):
+                    # if seq in uniques:
+                    #     duplicate_count += 1
+                    #     print 'found dup:' + location + ' ' + seq
+                    #     print duplicate_count
+
+                    if (location != 'NULL') and ('\N' not in location) and (seq not in uniques) and (write_file != 0):
+                        uniques.add(seq)
                         ofile.write('%s|%s\n' % (location, seq))
                         if len(seq) <= 500:
                             long_count += 1
