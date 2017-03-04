@@ -7,7 +7,7 @@ from sklearn.feature_selection import SelectKBest, f_classif, VarianceThreshold
 from sklearn.preprocessing import Normalizer, normalize
 from keras.optimizers import SGD, RMSprop, Adagrad, Adam, Adamax, Nadam
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation
+from keras.layers import Dense, Dropout, Activation, LSTM
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.utils import np_utils
 import numpy
@@ -44,7 +44,7 @@ out_dim = len(set(Y))
 
 
 def basic_model():
-    create model
+
     model = Sequential()
 
     model.add(Dense(in_dim, input_dim=in_dim, init='normal', activation='softplus'))
@@ -73,7 +73,7 @@ encoded_Y = encoder.transform(Y)
 
 # convert integers to dummy variables (i.e. one hot encoded)
 dummy_y = np_utils.to_categorical(encoded_Y)
-estimator = KerasClassifier(build_fn=basic_model, nb_epoch=5, batch_size=5, verbose=1)
+estimator = KerasClassifier(build_fn=basic_model, nb_epoch=60, batch_size=100, verbose=1)
 
 
 # X_train, X_test, Y_train, Y_test = train_test_split(X, dummy_y, test_size=0.33, random_state=seed)

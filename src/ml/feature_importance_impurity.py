@@ -8,7 +8,7 @@ matplotlib.use('TKAgg')
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
+sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_classification
@@ -22,7 +22,7 @@ DEBUG = True
 
 def plot_feature_importance():
     max_args = 40  # max number of features to include in plot.
-    sys.path.append('../')
+    # sys.path.append('../')
     # ANIMALS
     # INPUT_FILE = "../../data/animals/label_scores.txt"
     # PLANTS

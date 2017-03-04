@@ -36,7 +36,7 @@ INPUT_FILE = "../../data/animals/label_scores.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
 
 VERBOSE = True
-CROSS_VAL = 10
+CROSS_VAL = 5
 
 RANDSEED = 7
 
@@ -141,8 +141,6 @@ if __name__ == '__main__':
 
     print("--- %s seconds ---" % (end_time - start_time))
 
-    nb.plot_roc_curve(X, Y)
-
     # New - Shuffled
     # plants - general - hardvote - low corr
     # 100k samples, cv=5
@@ -219,6 +217,11 @@ if __name__ == '__main__':
     # Accuracy: 0.66 (+/- 0.01)
     # 28797.847502 seconds
 
+# new - shuffled
+#  animals - general - hardvote - top20 labels from all 566 features
+# 100k samples, cv = 5
+# Accuracy: 0.63 (+/- 0.01)
+# 115.778145075 seconds
 
 
 ##################

@@ -190,50 +190,50 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
     print("Long sequences: " + str(long_count))
 
 
-def write_label_seq_file(file_in, file_out, write_file=0):
-    count = 0
-    with open(file_in, 'r') as ifile:
-        for i, l in enumerate(ifile):
-            count = i + 1
-        print('num lines: %d' % count)
-    with open(file_in, 'r') as ifile:
-        with open(file_out, 'a') as ofile:
-            for i in range(count):
-                l = ifile.readline()
-
-                # if i == 1000:
-                #     break
-                if l[0] == '>':
-
-                    location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
-                    location = location_search.group('location').rstrip()
-                    print(location)
-
-                else:
-                    seq = ''
-                    seq += l.rstrip()
-                    while True:
-                        x = ifile.tell()
-                        l = ifile.readline()
-
-                        if l == '':  # EOF
-                            # do something
-                            # print seq
-                            if location != 'NULL' and write_file != 0:
-                                ofile.write('%s|%s\n' % (location, seq))
-                            del seq
-
-                            return
-                        elif l[0] == '>':
-                            ifile.seek(x)
-                            break
-                        else:
-                            seq += l.rstrip()
-                    # do something
-                    # print seq + '\n'
-                    if location != 'NULL' and write_file != 0:
-                        ofile.write('%s|%s\n' % (location, seq))
-                    del seq
+# def write_label_seq_file(file_in, file_out, write_file=0):
+#     count = 0
+#     with open(file_in, 'r') as ifile:
+#         for i, l in enumerate(ifile):
+#             count = i + 1
+#         print('num lines: %d' % count)
+#     with open(file_in, 'r') as ifile:
+#         with open(file_out, 'a') as ofile:
+#             for i in range(count):
+#                 l = ifile.readline()
+#
+#                 # if i == 1000:
+#                 #     break
+#                 if l[0] == '>':
+#
+#                     location_search = re.search(r".+(\[)(?P<location>.+?)(\])$", l)
+#                     location = location_search.group('location').rstrip()
+#                     print(location)
+#
+#                 else:
+#                     seq = ''
+#                     seq += l.rstrip()
+#                     while True:
+#                         x = ifile.tell()
+#                         l = ifile.readline()
+#
+#                         if l == '':  # EOF
+#                             # do something
+#                             # print seq
+#                             if location != 'NULL' and write_file != 0:
+#                                 ofile.write('%s|%s\n' % (location, seq))
+#                             del seq
+#
+#                             return
+#                         elif l[0] == '>':
+#                             ifile.seek(x)
+#                             break
+#                         else:
+#                             seq += l.rstrip()
+#                     # do something
+#                     # print seq + '\n'
+#                     if location != 'NULL' and write_file != 0:
+#                         ofile.write('%s|%s\n' % (location, seq))
+#                     del seq
 
 
 def find_unique_labels(filename):
@@ -353,7 +353,7 @@ if __name__ == '__main__':
     output_file_2 = '%s/label_sequences.txt' % data_folder
 
     # number of entries to output in the label & scores file.... max is 1257123
-    size = 100000
+
 
     # testing
     # get_general_label_test(input_file)
@@ -369,11 +369,14 @@ if __name__ == '__main__':
     if mode == 'scores':
         if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
             os.remove(output_file_1)
+        size = 100000
         write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+        print('\n%s contains these labels:' % output_file_1)
+        find_unique_labels(output_file_1)
     if mode == 'sequences':
         if os.path.exists(output_file_2) and ENABLE_WRITE != 0:
             os.remove(output_file_2)
+        size = 1100000
         write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
 
-    print('\n%s contains these labels:' % output_file_1)
-    find_unique_labels(output_file_1)
+
