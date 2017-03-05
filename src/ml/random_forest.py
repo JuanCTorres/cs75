@@ -11,7 +11,7 @@ from sklearn.preprocessing import Normalizer, normalize, StandardScaler
 import pandas as pd
 
 # ANIMALS
-INPUT_FILE = "../../data/animals/label_scores.txt"
+INPUT_FILE = "../../data/plants/label_scores.txt"
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
