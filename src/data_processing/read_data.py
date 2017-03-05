@@ -2,6 +2,7 @@ import os, re, sys
 import read_dicts
 from collections import Counter
 import pandas as pd
+import operator
 
 sys.path.append('.')
 
@@ -72,13 +73,21 @@ def get_general_label_test(file_in):
         print('k: %-30s v: %d' % (k, v))
 
 
-def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True):
+def get_species(line):
+    location_search = re.search(r"\(sp: (?P<location1>.+?)\)", line)
+    location = location_search.group('location1').rstrip()
+    return location
+
+
+def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True,
+                           species='all'):
     print('building and writing %s' % file_out)
 
     count = 0
     entry_count = 0
     duplicate_count = 0
     uniques = set()
+    d_sp = dict()
 
     score_d, corr_d = read_dicts.construct_dicts("../../data/aaindex/aaindex1.txt")
     aalist = read_dicts.get_aaindex_list("../../data/aaindex/aaindex_used.txt")
@@ -87,7 +96,6 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
         for i, l in enumerate(ifile):
             count = i + 1
         print('raw data lines: %d' % count)
-
 
     with open(file_in, 'r') as ifile:
         with open(file_out, 'a') as ofile:
@@ -102,6 +110,8 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                     else:
                         location = get_specific_label(l)
 
+                    sp = get_species(l)
+
                 else:
                     seq = ''
                     seq += l.rstrip()
@@ -113,14 +123,21 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                             # do something
                             # print seq
                             if (location != 'NULL') and (location != '\N') and (seq not in uniques) and (write_file != 0):
-                                uniques.add(seq)
-                                scores = getscores(score_d, aalist, seq)
-                                ofile.write('%s|%s\n' % (location, scores))
-                                entry_count += 1
-                                print('number of entries: %d' % entry_count)
-                            del seq
+                                if species == 'all' or species == sp:
+                                    try:
+                                        d_sp[sp] += 1
+                                    except KeyError:
+                                        d_sp[sp] = 1
 
+                                    uniques.add(seq)
+                                    scores = getscores(score_d, aalist, seq)
+                                    ofile.write('%s|%s\n' % (location, scores))
+                                    entry_count += 1
+                                    print('number of entries: %d' % entry_count)
+
+                            del seq
                             return
+
                         elif l[0] == '>':
                             ifile.seek(x)
                             break
@@ -132,24 +149,38 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                     #     print duplicate_count
 
                     if (location != 'NULL') and ('\N' not in location) and (seq not in uniques) and (write_file != 0):
-                        uniques.add(seq)
-                        scores = getscores(score_d, aalist, seq)
-                        ofile.write('%s|%s\n' % (location, scores))
-                        entry_count += 1
-                        # print('number of entries: %d' % entry_count)
-                        if outsize != 'all':
-                            if entry_count == outsize:
-                                break
+                        if species == 'all' or species == sp:
+
+                            try:
+                                d_sp[sp] += 1
+                            except KeyError:
+                                d_sp[sp] = 1
+
+                            uniques.add(seq)
+                            scores = getscores(score_d, aalist, seq)
+                            ofile.write('%s|%s\n' % (location, scores))
+                            entry_count += 1
+                            print('number of entries: %d' % entry_count)
+                            if outsize != 'all':
+                                if entry_count == outsize:
+                                    print 'dic:'
+                                    sorted_x = sorted(d_sp.items(), key=operator.itemgetter(1))
+                                    print sorted_x
+                                    break
+
+                        # else:
+                        #     print 'anh'
                     del seq
 
 
-def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True):
+def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True, species='all'):
     print('building and writing %s' % file_out)
     location_set, max_len, seq_count, long_count = set(), 0, 0, 0
     count = 0
     entry_count = 0
     uniques = set()
     duplicate_count = 0
+    d_sp = dict()
 
     with open(file_in, 'r') as ifile:
         for i, l in enumerate(ifile):
@@ -164,6 +195,9 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
                         location = get_general_label(l)
                     else:
                         location = get_specific_label(l)
+
+                    sp = get_species(l)
+
                 else:
                     seq = ''
                     seq += l.rstrip()
@@ -173,12 +207,19 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
 
                         if l == '':  # EOF
                             if (location != 'NULL') and (location != '\N') and (seq not in uniques) and (write_file != 0):
-                                uniques.add(seq)
-                                ofile.write('%s|%s\n' % (location, seq))
-                                if len(seq) <= 500:
-                                    long_count += 1
-                                location_set.add(location)
-                                entry_count += 1
+                                if species == 'all' or species == sp:
+                                    try:
+                                        d_sp[sp] += 1
+                                    except KeyError:
+                                        d_sp[sp] = 1
+
+                                    uniques.add(seq)
+                                    ofile.write('%s|%s\n' % (location, seq))
+                                    if len(seq) <= 500:
+                                        long_count += 1
+                                    location_set.add(location)
+                                    entry_count += 1
+                                    print('number of entries: %d' % entry_count)
                             del seq
 
                             return
@@ -194,15 +235,25 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
                     #     print duplicate_count
 
                     if (location != 'NULL') and ('\N' not in location) and (seq not in uniques) and (write_file != 0):
-                        uniques.add(seq)
-                        ofile.write('%s|%s\n' % (location, seq))
-                        if len(seq) <= 500:
-                            long_count += 1
-                        location_set.add(location)
-                        entry_count += 1
-                        if outsize != 'all':
-                            if entry_count == outsize:
-                                break
+                        if species == 'all' or species == sp:
+                            try:
+                                d_sp[sp] += 1
+                            except KeyError:
+                                d_sp[sp] = 1
+
+                            uniques.add(seq)
+                            ofile.write('%s|%s\n' % (location, seq))
+                            if len(seq) <= 500:
+                                long_count += 1
+                            location_set.add(location)
+                            entry_count += 1
+                            print('number of entries: %d' % entry_count)
+                            if outsize != 'all':
+                                if entry_count == outsize:
+                                    print 'dic:'
+                                    sorted_x = sorted(d_sp.items(), key=operator.itemgetter(1))
+                                    print sorted_x
+                                    break
                     del seq
     print("locations: " + str(location_set))
     print("maximum sequence length: " + str(max_len))
@@ -390,13 +441,15 @@ if __name__ == '__main__':
         if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
             os.remove(output_file_1)
         size = 100000
-        write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+        write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size,
+                               group_similar_labels=True, species='all')   # species = 'all' for everything
+        # 'Rattus norvegicus', 7071), ('Mus musculus', 15461), ('Homo sapiens', 23931) are popular species
         print('\n%s contains these labels:' % output_file_1)
         find_unique_labels(output_file_1)
     if mode == 'sequences':
         if os.path.exists(output_file_2) and ENABLE_WRITE != 0:
             os.remove(output_file_2)
-        size = 1100000
-        write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
-
-
+        size = 100000
+        write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True,
+                            species='all')     # species = 'all' for everything
+        # 'Rattus norvegicus', 7071), ('Mus musculus', 15461), ('Homo sapiens', 23931) are popular species
