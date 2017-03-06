@@ -1,7 +1,10 @@
 import sys
 
+import numpy as np
 sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
+from data_processing.split_data import SplitData
+from data_processing import perform_pca
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
@@ -11,7 +14,7 @@ from sklearn.preprocessing import Normalizer, normalize, StandardScaler
 import pandas as pd
 
 # ANIMALS
-INPUT_FILE = "../../data/animals/label_scores.txt"
+INPUT_FILE = "../../data/plants/label_scores.txt"
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
@@ -24,6 +27,23 @@ def rand_forest(labels, features):
 
     return rf
 
+
+def rand_forest_pca(labels, features, n_folds):
+    sd = SplitData(labels, features, n_splits=n_folds)
+    Ytr, Xtr = sd.Ytr, sd.Xtr
+    Yte, Xte = sd.Yte, sd.Xte
+    print len(Ytr), len(Ytr[0]), len(Xtr), len(Xtr[0]), len(Yte), len(Yte[0]),len(Xte), len(Xte[0])
+    scores = []
+    rf = RandomForestClassifier()
+    for ytr, xtr, yte, xte in zip(Ytr, Xtr, Yte, Xte):
+        pca = perform_pca.pca_preprocess(ytr, xtr, output_path=INPUT_FILE)
+        xtr_fitted = perform_pca.tranform_data(xtr, pca)
+        xte_fitted = perform_pca.tranform_data(xte, pca)
+        print len(ytr), len(ytr[0]), len(xtr_fitted), len(xtr_fitted[0]), len(yte), len(yte[0]), len(xte_fitted), len(xte_fitted[0])
+        rf.fit(xtr_fitted, ytr)
+        scores.append(rf.score(xte_fitted, yte))
+    return scores
+    pass
 
 def get_feature_vector_length(file):
     with open(file) as f:

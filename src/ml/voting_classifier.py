@@ -165,7 +165,7 @@ if __name__ == '__main__':
     # 185.496416092 seconds
 
     # NEW - shuffled
-    # planats - general - hardvote - top10 animal labels
+    # plants - general - hardvote - top10 animal labels
     # Accuracy: 0.56 (+/- 0.01)
     # 117.668693066 seconds
 

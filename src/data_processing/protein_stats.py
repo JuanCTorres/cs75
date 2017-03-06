@@ -36,7 +36,7 @@ def calculate_mean_sd(data_file, features_file):
             d_sd[val].append(d[k].std(axis=0)[ind])
 
     plt.figure(1)
-    plt.suptitle("Mean Score and 2 S.D. distribution for aaIndex", fontsize=16)
+    plt.suptitle("Mean Scores and 2 S.D. distribution for aaIndex", fontsize=16)
 
     # plt.xticks(range(len(d.keys())), d.keys(), rotation='vertical')
     plt.subplot(311)
