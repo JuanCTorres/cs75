@@ -447,7 +447,7 @@ if __name__ == '__main__':
         # species = 'all' for everything
         # 'Rattus norvegicus', 7071), ('Mus musculus', 15461), ('Homo sapiens', 23931) are popular species
         write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size,
-                               group_similar_labels=True, species='all)
+                               group_similar_labels=True, species='all')
         print('\n%s contains these labels:' % output_file_1)
         find_unique_labels(output_file_1)
     if mode == 'sequences':
