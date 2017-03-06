@@ -12,12 +12,15 @@ from sklearn.metrics import accuracy_score
 VERBOSE = True
 
 # DATA
+DATA_FOLDER = '../../data'
+INPUT_FOLDER = '%s/animals' % DATA_FOLDER
+
 ## Animals
-INPUT_FILE = "../../data/animals/label_scores.txt"
+INPUT_FILE = '%s/label_scores.txt' % INPUT_FOLDER
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
-FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
-OUTPUT_FILE = '../../data/permutation_testing.csv'
+FEATURES_FILE = '%s/aaindex/aaindex_used.txt' % DATA_FOLDER
+OUTPUT_FILE = '%s/permutation_testing.csv' % INPUT_FOLDER
 
 if __name__ == '__main__':
     if len(argv) < 2:
