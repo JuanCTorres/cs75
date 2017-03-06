@@ -2,6 +2,7 @@ import os, re, sys
 import read_dicts
 from collections import Counter
 import pandas as pd
+import numpy as np
 
 sys.path.append('.')
 
@@ -302,7 +303,8 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
         return list(labels), list(feature_matrix)  # tuples can make some things harder
     elif format == 'df':
         data = pd.DataFrame(data=list(feature_matrix), columns=features_used)
-        labels = pd.DataFrame(data=list(labels))
+        labels = pd.DataFrame(data=np.array(labels))
+        # labels = np.array(labels)
         return labels, data
     else:
         raise Exception('Unknown format %s' % format)
@@ -354,7 +356,6 @@ if __name__ == '__main__':
 
     # number of entries to output in the label & scores file.... max is 1257123
 
-
     # testing
     # get_general_label_test(input_file)
 
@@ -370,7 +371,8 @@ if __name__ == '__main__':
         if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
             os.remove(output_file_1)
         size = 100000
-        write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
+        write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size,
+                               group_similar_labels=True)
         print('\n%s contains these labels:' % output_file_1)
         find_unique_labels(output_file_1)
     if mode == 'sequences':
@@ -378,5 +380,3 @@ if __name__ == '__main__':
             os.remove(output_file_2)
         size = 1100000
         write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True)
-
-
