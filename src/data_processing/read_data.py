@@ -531,7 +531,7 @@ if __name__ == '__main__':
     if mode == 'scores':
         if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
             os.remove(output_file_1)
-        size = 100000
+        size = 500000
         write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size,
                                group_similar_labels=True, species='all')   # species = 'all' for everything
         #  ('Macaca mulatta', 63368), ('Mus musculus', 66105), ('Homo sapiens', 115817)]

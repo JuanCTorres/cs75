@@ -1,61 +1,63 @@
 import os, re, sys
 import numpy as np
 from scipy import linalg
-from random import shuffle
 from read_data import read_preprocessed_data
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from sklearn.model_selection import cross_val_score
 
 
-LABEL_SCORE_PATH = '../../data/animals'
-PLANTS_LABEL_SCORE_PATH = '../../data/plants'
+
 FEATURE_PATH = '../../data/aaindex/aaindex_used.txt'
+FEATURE_TO_FIT = 123
+FEATURE_KEPT = 20
+
+def train_pca(Xtr):
+    #min_max_scaler = preprocessing.MinMaxScaler(feature_range=(0, 100))
+    #X_scaled = preprocessing.scale(min_max_scaler.fit_transform(np.array(Xtr)))
+    X_scaled = preprocessing.scale(np.array(Xtr))
+    pca = PCA(svd_solver='auto', n_components=FEATURE_TO_FIT)
+    pca.fit(X_scaled)
+    #print "Variance ration among dimensions: ", pca.explained_variance_ratio_
+    return pca
+
+# def save_transfromed_train_data(Ytr, Xtr, pca, label_socres_path):
+#     pca.n_components = FEATURE_KEPT
+#     Xfit = pca.fit_transform(Xtr)
+#     with open(label_socres_path+'/label_scores_projected.txt', 'w') as f:
+#         for y, x in zip(Ytr, Xfit):
+#             line = y + '|'+ '|'.join(format(xx, ".5f") for xx in x)
+#             f.write(line+'\n')
+#     pass
 
 
-def performPCA(X,  batch_size, ):
+def tranform_data(X, pca):
+    pca.n_components = FEATURE_KEPT
+    return pca.fit_transform(X)
+
+
+def pca_preprocess(Ytr, Xtr, output_path):
+    pca = train_pca(Xtr)
+    #save_transfromed_train_data(Ytr, Xtr, pca, label_socres_path=output_path)
+    return pca
     pass
-
-
-def create_data(label_scores):
-    Y, X = read_preprocessed_data(label_scores, FEATURE_PATH, exclude_labels_less_than=0, format='default')
-    zipped = zip(Y, X)
-    shuffle(zipped)
-    Y, X = zip(*zipped)
-    xarray = np.array(X)
-    min_max_scaler = preprocessing.MinMaxScaler(feature_range=(0, 100))
-    X_scaled = preprocessing.scale(min_max_scaler.fit_transform(xarray))
-    #print X_scaled.mean(axis=0), X_scaled.std(axis=0)
-    return Y, X_scaled
-
-
-def preprocess(Y, X):
-    pca = PCA(svd_solver='auto', n_components=566)
-    pca.fit(X)
-    print(pca.explained_variance_ratio_)
-    pca.n_components = 20
-    Xfit = pca.fit_transform(X)
-    with open(LABEL_SCORE_PATH+'/label_scores_projected.txt', 'w') as f:
-        for y, x in zip(Y, Xfit):
-            line = y + '|'+ '|'.join(format(xx, ".5f") for xx in x)
-            f.write(line+'\n')
-    pass
-
-
 
 if __name__ == '__main__':
-    # if len(sys.argv) > 1:
-    #     dataset = sys.argv[1]
-    # else:
-    #     sys.exit(1)
+    if len(sys.argv) > 1:
+        dataset = sys.argv[1]
+    else:
+        dataset = 'animals'
 
-    # if dataset == 'animals':
-    data_folder = '../../data/animals'
-    input_file = '%s/label_scores.txt' % data_folder
-    # else:
-    #     raise Exception('Please enter a valid dataset to use. Accepted: \'plants\' and \'animals\'')
+    if dataset == 'animals':
+        data_folder = '../../data/animals'
+        input_file = '%s/label_scores.txt' % data_folder
+    elif dataset == 'plants':
+        data_folder = '../../data/plants'
+        input_file = '%s/label_scores.txt' % data_folder
+    else:
+        raise Exception('Please enter a valid dataset to use. Accepted: \'plants\' and \'animals\'')
 
-    Y, X = create_data(input_file)
-    preprocess(Y, X)
+    #Y, X = create_data(input_file)
+    #pca_preprocess(Y, X, data_folder)
 
     pass
