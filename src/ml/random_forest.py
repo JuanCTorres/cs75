@@ -11,7 +11,7 @@ from sklearn.preprocessing import Normalizer, normalize, StandardScaler
 import pandas as pd
 
 # ANIMALS
-INPUT_FILE = "../../data/plants/label_scores.txt"
+INPUT_FILE = "../../data/animals/label_scores.txt"
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     # X = normalize(X, norm='l2', axis=1)
     # X = VarianceThreshold(threshold=0.00000005).fit_transform(X)
     # X = SelectKBest(f_classif, k=50).fit_transform(X, Y)
-    X = StandardScaler().fit_transform(X)
+    # X = StandardScaler().fit_transform(X)
     print('# features used: %d / %d' % (len(X[0]), x_len_before))
 
     print('RandomForestClassifier')
