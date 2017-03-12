@@ -170,9 +170,6 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                                     sorted_x = sorted(d_sp.items(), key=operator.itemgetter(1))
                                     print sorted_x
                                     break
-
-                                    # else:
-                                    #     print 'anh'
                     del seq
 
 
