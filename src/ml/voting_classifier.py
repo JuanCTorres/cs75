@@ -17,7 +17,7 @@ from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, ExtraTreesClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis, LinearDiscriminantAnalysis
 from scikitplot import classifier_factory
@@ -28,7 +28,7 @@ sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 
 # ANIMALS
-INPUT_FILE = "../../data/animals/label_scores.txt"
+INPUT_FILE = "../../data/animals/label_scores_150k.txt"
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 
@@ -88,16 +88,16 @@ NAMES = [
 ]
 
 CLASSIFIERS = [
-    KNeighborsClassifier(17),  # ~49% acc
-    SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1, eta0=0.0,  # ~0.41 acc, 3 sec
+    KNeighborsClassifier(17),  # ~69% acc
+    SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1, eta0=0.0,  # ~0.47 acc, 9 sec
                   fit_intercept=True, l1_ratio=0.15, learning_rate='optimal', loss='log',
                   n_iter=5, n_jobs=1, penalty='l2', power_t=0.5, random_state=None,
                   shuffle=True, verbose=VERBOSE, warm_start=False),
-    DecisionTreeClassifier(max_depth=None),  # 0.41 acc, 20 sec
-    RandomForestClassifier(n_estimators=10, criterion='gini', max_features='auto',  # ~0.49 acc, 12 sec
+    DecisionTreeClassifier(max_depth=None),  # 0.63 acc, 20 sec
+    ExtraTreesClassifier(n_estimators=20, criterion='gini', max_features='auto',
                            min_samples_split=2, verbose=VERBOSE),
     MLPClassifier(alpha=1, verbose=VERBOSE),  # 0.48 acc, 29 sec
-    LinearDiscriminantAnalysis()  # 0.46 acc, 2 sec
+    LinearDiscriminantAnalysis()  # 0.53 acc, 3 sec
 ]
 
 
@@ -107,7 +107,8 @@ def generate_tuple_lists(cla, tags):
 
 
 if __name__ == '__main__':
-    Y, X = read_preprocessed_data(INPUT_FILE, FEATURES_FILE, CROSS_VAL)
+    Y, X = read_preprocessed_data(INPUT_FILE, FEATURES_FILE, 0)
+    print('Y len: %d' % len(Y))
 
     x_len_before = len(X[0])
     # X = normalize(X, norm='l2', axis=1)
