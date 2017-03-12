@@ -3,6 +3,7 @@ import read_dicts
 from collections import Counter
 import pandas as pd
 import operator
+import random
 
 sys.path.append('.')
 
@@ -40,6 +41,10 @@ def getscores(d, aalist, seq):
 def get_specific_label(line):
     location_search = re.search(r"(.+(\[)(?P<location1>.+?)(\])( |)$)", line)
     location = location_search.group('location1').rstrip().split(',')[0]
+
+    if location == 'Plasma membrane':
+        location = 'Membrane'
+
     return location
 
 
@@ -53,6 +58,10 @@ def get_general_label(line):
         print('line: ' + line)
         # print('location: ' + location)
         assert False
+
+    if general_location == 'Plasma membrane':
+        general_location = 'Membrane'
+
     return general_location
 
 
@@ -77,6 +86,86 @@ def get_species(line):
     location_search = re.search(r"\(sp: (?P<location1>.+?)\)", line)
     location = location_search.group('location1').rstrip()
     return location
+
+
+def get_dict_loc_to_score(file_in, group_similar_labels=True):
+    score_d, corr_d = read_dicts.construct_dicts("../../data/aaindex/aaindex1.txt")
+    aalist = read_dicts.get_aaindex_list("../../data/aaindex/aaindex_used.txt")
+
+    d = dict()
+
+    count = 0
+    entry_count = 0
+    uniques = set()
+
+    with open(file_in, 'r') as ifile:
+        for i, l in enumerate(ifile):
+            count = i + 1
+        print('raw data lines: %d' % count)
+
+    with open(file_in, 'r') as ifile:
+        for i in range(count):
+            # print "%d of %d lines" % (i+1, count)
+            l = ifile.readline()
+            # if i == 1000:
+            #     break
+            if l[0] == '>':
+                if group_similar_labels:
+                    location = get_general_label(l)
+                else:
+                    location = get_specific_label(l)
+
+                sp = get_species(l)
+
+            else:
+                seq = ''
+                seq += l.rstrip()
+                while True:
+                    x = ifile.tell()
+                    l = ifile.readline()
+
+                    if l == '':  # EOF
+                        # do something
+                        # print seq
+                        if (location != 'NULL') and (location != '\N') and (seq not in uniques):
+                            # try:
+                            #     d_sp[sp] += 1
+                            # except KeyError:
+                            #     d_sp[sp] = 1
+
+                            uniques.add(seq)
+                            scores = getscores(score_d, aalist, seq)
+                            try:
+                                d[location].append(scores)
+                            except KeyError:
+                                d[location] = [scores]
+                            entry_count += 1
+                            print('number of entries: %d' % entry_count)
+
+                        del seq
+                        return d
+
+                    elif l[0] == '>':
+                        ifile.seek(x)
+                        break
+                    else:
+                        seq += l.rstrip()
+                # if seq in uniques:
+                #     duplicate_count += 1
+                #     print 'found dup:' + location + ' ' + seq
+                #     print duplicate_count
+
+                if (location != 'NULL') and ('\N' not in location) and (seq not in uniques):
+
+                    uniques.add(seq)
+                    scores = getscores(score_d, aalist, seq)
+                    try:
+                        d[location].append(scores)
+                    except KeyError:
+                        d[location] = [scores]
+                    entry_count += 1
+                    print('number of entries: %d' % entry_count)
+                del seq
 
 
 def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group_similar_labels=True,
@@ -416,6 +505,8 @@ if __name__ == '__main__':
         pass
     elif mode == 'sequences':
         pass
+    elif mode == 'kscores':
+        pass
     else:
         raise Exception('Please enter either "scores" or "sequences" as the second argument')
 
@@ -443,13 +534,95 @@ if __name__ == '__main__':
         size = 500000
         write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size,
                                group_similar_labels=True, species='all')   # species = 'all' for everything
-        # 'Rattus norvegicus', 7071), ('Mus musculus', 15461), ('Homo sapiens', 23931) are popular species
+        #  ('Macaca mulatta', 63368), ('Mus musculus', 66105), ('Homo sapiens', 115817)]
         print('\n%s contains these labels:' % output_file_1)
+        # d = get_dict_loc_to_score(input_file)
+        # for k, v in d.items():
+        #     print k
+        #     print len(v)
         find_unique_labels(output_file_1)
-    if mode == 'sequences':
+    elif mode == 'sequences':
         if os.path.exists(output_file_2) and ENABLE_WRITE != 0:
             os.remove(output_file_2)
         size = 100000
         write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True,
                             species='all')     # species = 'all' for everything
-        # 'Rattus norvegicus', 7071), ('Mus musculus', 15461), ('Homo sapiens', 23931) are popular species
+        # ('Macaca mulatta', 63368), ('Mus musculus', 66105), ('Homo sapiens', 115817)]
+    elif mode == 'kscores':
+        if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
+            os.remove(output_file_1)
+
+        d = get_dict_loc_to_score(input_file)
+
+        for k in d.keys():
+            random.shuffle(d[k])
+
+        size = 150000
+        with open(output_file_1[:-4] + '_150k.txt', 'a') as ofile:
+            for k in d.keys():
+                if len(d[k]) < size:
+                    continue
+                for i in range(0, size):
+                    ofile.write('%s|%s\n' % (k, d[k][i]))
+
+        size = 100000
+        with open(output_file_1[:-4] + '_100k.txt', 'a') as ofile:
+            for k in d.keys():
+                if len(d[k]) < size:
+                    continue
+                for i in range(0, size):
+                    ofile.write('%s|%s\n' % (k, d[k][i]))
+
+        size = 50000
+        with open(output_file_1[:-4] + '_50k.txt', 'a') as ofile:
+            for k in d.keys():
+                if len(d[k]) < size:
+                    continue
+                for i in range(0, size):
+                    ofile.write('%s|%s\n' % (k, d[k][i]))
+
+        size = 14000
+        with open(output_file_1[:-4] + '_14k.txt', 'a') as ofile:
+            for k in d.keys():
+                if len(d[k]) < size:
+                    continue
+                for i in range(0, size):
+                    ofile.write('%s|%s\n' % (k, d[k][i]))
+
+        size = 10000
+        with open(output_file_1[:-4] + '_10k.txt', 'a') as ofile:
+            for k in d.keys():
+                if len(d[k]) < size:
+                    continue
+                for i in range(0, size):
+                    ofile.write('%s|%s\n' % (k, d[k][i]))
+
+                    # Vacuole
+                    # 38
+                    # Golgi
+                    # apparatus
+                    # 5320
+                    # Secreted
+                    # 596676
+                    # Cytoplasm
+                    # 1038408
+                    # Mitochondria
+                    # 513750
+                    # Peroxisome
+                    # 17827
+                    # Nucleus
+                    # 785219
+                    # GPI
+                    # anchored
+                    # 14189
+                    # Membrane
+                    # 152219
+                    # Cytoskeleton
+                    # 44307
+                    # Lysosome
+                    # 2557
+                    # Plasma
+                    # membrane
+                    # 465332
+                    # ER
+                    # 41470
