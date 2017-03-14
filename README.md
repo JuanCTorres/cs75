@@ -49,19 +49,3 @@ order of the aaindices in `aaindex_used.txt`
         * `compare` options runs voting classifier on data from a comparison study
         * `default` options runs voting classifier on our own data
             * **before running this script please make sure to run `read_data.py` first to generate the relevant input data files**
-
-
-
-## How to process data
-* Run `read_data.py animals` or `read_data.py plants` to read either the animal or plant data. If `group_similar_labels = True`,
-some labels will be grouped to produce fewer classes.
-    * For instance, setting `group_similar_labels` to `True` will result in labels such as 'Mitochondria' and 
-    'Mitochondria (membrane)' being read as 'Mitochondria'.
-    * The `size` variable in `__main__` determines the number of data points in output file ./data/plants/label_scores.txt. 
-    Feel free to change this variable.    
-
-## Reading in preprocessed data
-use read_data.read_preprocessed_data() which returns a tuple of labels and features
-
-##
-test....
