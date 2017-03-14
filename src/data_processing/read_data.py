@@ -2,6 +2,8 @@ import os, re, sys
 import read_dicts
 from collections import Counter
 import pandas as pd
+
+import numpy as np
 import operator
 import random
 
@@ -211,7 +213,8 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                         if l == '':  # EOF
                             # do something
                             # print seq
-                            if (location != 'NULL') and (location != '\N') and (seq not in uniques) and (write_file != 0):
+                            if (location != 'NULL') and (location != '\N') and (seq not in uniques) and (
+                                        write_file != 0):
                                 if species == 'all' or species == sp:
                                     try:
                                         d_sp[sp] += 1
@@ -256,9 +259,6 @@ def write_label_score_file(file_in, file_out, write_file=0, outsize='all', group
                                     sorted_x = sorted(d_sp.items(), key=operator.itemgetter(1))
                                     print sorted_x
                                     break
-
-                        # else:
-                        #     print 'anh'
                     del seq
 
 
@@ -295,7 +295,8 @@ def write_sequence_file(file_in, file_out, write_file=0, outsize='all', group_si
                         l = ifile.readline()
 
                         if l == '':  # EOF
-                            if (location != 'NULL') and (location != '\N') and (seq not in uniques) and (write_file != 0):
+                            if (location != 'NULL') and (location != '\N') and (seq not in uniques) and (
+                                        write_file != 0):
                                 if species == 'all' or species == sp:
                                     try:
                                         d_sp[sp] += 1
@@ -462,7 +463,8 @@ def read_preprocessed_data(input_file, features_file, exclude_labels_less_than=0
         return list(labels), list(feature_matrix)  # tuples can make some things harder
     elif format == 'df':
         data = pd.DataFrame(data=list(feature_matrix), columns=features_used)
-        labels = pd.DataFrame(data=list(labels))
+        labels = pd.DataFrame(data=np.array(labels))
+        # labels = np.array(labels)
         return labels, data
     else:
         raise Exception('Unknown format %s' % format)
@@ -516,7 +518,6 @@ if __name__ == '__main__':
 
     # number of entries to output in the label & scores file.... max is 1257123
 
-
     # testing
     # get_general_label_test(input_file)
 
@@ -531,10 +532,12 @@ if __name__ == '__main__':
     if mode == 'scores':
         if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
             os.remove(output_file_1)
-        size = 500000
+
+        size = 100000
+        # species = 'all' for everything
+        # 'Rattus norvegicus', 7071), ('Mus musculus', 15461), ('Homo sapiens', 23931) are popular species
         write_label_score_file(input_file, output_file_1, write_file=ENABLE_WRITE, outsize=size,
-                               group_similar_labels=True, species='all')   # species = 'all' for everything
-        #  ('Macaca mulatta', 63368), ('Mus musculus', 66105), ('Homo sapiens', 115817)]
+                               group_similar_labels=True, species='all')
         print('\n%s contains these labels:' % output_file_1)
         # d = get_dict_loc_to_score(input_file)
         # for k, v in d.items():
@@ -544,10 +547,11 @@ if __name__ == '__main__':
     elif mode == 'sequences':
         if os.path.exists(output_file_2) and ENABLE_WRITE != 0:
             os.remove(output_file_2)
+
         size = 100000
         write_sequence_file(input_file, output_file_2, write_file=ENABLE_WRITE, outsize=size, group_similar_labels=True,
-                            species='all')     # species = 'all' for everything
-        # ('Macaca mulatta', 63368), ('Mus musculus', 66105), ('Homo sapiens', 115817)]
+                            species='all')
+        
     elif mode == 'kscores':
         if os.path.exists(output_file_1) and ENABLE_WRITE != 0:
             os.remove(output_file_1)
