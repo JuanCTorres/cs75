@@ -9,7 +9,6 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import cross_val_score
 
 
-
 FEATURE_PATH = '../../data/aaindex/aaindex_all.txt'
 FEATURE_TO_FIT = 123
 FEATURE_KEPT = 2
@@ -36,6 +35,7 @@ def cross_val_pca(Xtr):
     pass
 
 
+
 def train_pca(Xtr):
     min_max_scaler = preprocessing.MinMaxScaler(feature_range=(0, 100))
     X_scaled = preprocessing.scale(min_max_scaler.fit_transform(np.array(Xtr)))
@@ -46,6 +46,7 @@ def train_pca(Xtr):
     pca.fit(X_scaled)
     print "Variance ration among dimensions: ", pca.explained_variance_ratio_
     return pca
+
 
 # def save_transfromed_train_data(Ytr, Xtr, pca, label_socres_path):
 #     pca.n_components = FEATURE_KEPT
@@ -64,9 +65,10 @@ def tranform_data(X, pca):
 
 def pca_preprocess(Ytr, Xtr, output_path):
     pca = train_pca(Xtr)
-    #save_transfromed_train_data(Ytr, Xtr, pca, label_socres_path=output_path)
+    # save_transfromed_train_data(Ytr, Xtr, pca, label_socres_path=output_path)
     return pca
     pass
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
@@ -83,9 +85,10 @@ if __name__ == '__main__':
     else:
         raise Exception('Please enter a valid dataset to use. Accepted: \'plants\' and \'animals\'')
 
+
+    # Y, X = create_data(input_file)
+    # pca_preprocess(Y, X, data_folder)
     #Y, X = create_data(input_file)
     # pca_preprocess(Y, X, data_folder)
     Y, X = read_preprocessed_data(input_file, FEATURE_PATH, 5)
     train_pca(Xtr=X)
-
-    pass

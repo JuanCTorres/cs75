@@ -43,7 +43,7 @@ if __name__ == '__main__':
         estimators = generate_tuple_lists(CLASSIFIERS, NAMES)
         accuracy_df = pd.DataFrame(columns=cols)
 
-        for i in range(20):
+        for i in range(num_iter):
             print('loop iteration %d' % i)
             y_permuted = y.sample(frac=1)
             y_permuted_train = y_permuted.iloc[:train_size, :]
@@ -68,10 +68,15 @@ if __name__ == '__main__':
     elif argv[1] == 'read':
         accuracy_df = pd.read_csv(OUTPUT_FILE)
         fig = plt.figure()
-        plt.plot(range(len(accuracy_df)), accuracy_df[cols[0]])
-        plt.plot(range(len(accuracy_df)), accuracy_df[cols[1]])
-        plt.title('Prediction accuracy (testing)')
-        plt.legend(['non-permuted', 'permuted'])
-        plt.xlabel('Training cycle')
-        plt.ylabel('Testing accuracy')
+        differences = np.subtract(accuracy_df[cols[0]], accuracy_df[cols[1]])
+        # plt.plot(range(len(accuracy_df)), accuracy_df[cols[0]])
+        # plt.plot(range(len(accuracy_df)), accuracy_df[cols[1]])
+        # plt.plot(differences)
+        plt.hist(differences, color='#A5DEF1')
+        plt.title('Prediction accuracy difference (permuted vs. non-permuted)')
+        # plt.legend(['non-permuted', 'permuted'])
+        plt.xlabel('Frequency')
+        plt.ylabel('Difference in accuracy')
+        plt.set_cmap('BrBG')
+        # plt.xticks(range(0, len(accuracy_df) + 1, 2))
         plt.show()
