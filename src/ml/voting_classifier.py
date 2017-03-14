@@ -21,6 +21,7 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, ExtraTr
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis, LinearDiscriminantAnalysis
 from scikitplot import classifier_factory
+from sklearn.utils import shuffle
 
 import sys
 
@@ -28,7 +29,7 @@ sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 
 # ANIMALS
-INPUT_FILE = "../../data/animals/label_scores_150k.txt"
+INPUT_FILE = "../../data/animals/label_scores_100k.txt"
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 
@@ -36,7 +37,7 @@ INPUT_FILE = "../../data/animals/label_scores_150k.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
 
 VERBOSE = True
-CROSS_VAL = 5
+CROSS_VAL = 3
 
 RANDSEED = 7
 
@@ -129,6 +130,7 @@ if __name__ == '__main__':
     vc = VotingClassifier(estimators, voting='hard')
     nb = classifier_factory(vc)
 
+    Y, X = shuffle(Y, X, random_state=0)
     kfold = KFold(n_splits=CROSS_VAL, shuffle=True)
 
     start_time = time.time()
