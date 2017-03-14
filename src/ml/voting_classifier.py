@@ -108,6 +108,8 @@ Results:
     # Accuracy: 0.50 (+/- 0.10)
     # 128.024162769 seconds
 """
+
+import numpy as np
 import pandas as pd
 
 import time
@@ -126,7 +128,7 @@ from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, ExtraTreesClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis, LinearDiscriminantAnalysis
 from scikitplot import classifier_factory
@@ -137,7 +139,8 @@ sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 
 # ANIMALS
-INPUT_FILE = "../../data/animals/label_scores.txt"
+
+INPUT_FILE = '../../data/animals/label_scores.txt'
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 
@@ -216,6 +219,7 @@ def generate_tuple_lists(cla, tags):
 
 
 if __name__ == '__main__':
+
     if len(sys.argv) < 2:
         raise Exception('Please specify the dataset to use. Options: default, compare')
     if sys.argv[1] == 'default':
@@ -232,7 +236,6 @@ if __name__ == '__main__':
         x_len_before = len(X.iloc[0, :])
     else:
         raise Exception('Please specify a valid dataset to use. Options: default, compare')
-
     # X = normalize(X, norm='l2', axis=1)
     # X = VarianceThreshold(threshold=0.00000005).fit_transform(X)
     # X = SelectKBest(f_classif, k=50).fit_transform(X, Y)
