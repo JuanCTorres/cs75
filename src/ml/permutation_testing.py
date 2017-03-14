@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sys import argv, exit
+from warnings import warn
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import permutation_test_score
@@ -20,15 +21,20 @@ INPUT_FILE = '%s/label_scores.txt' % INPUT_FOLDER
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 FEATURES_FILE = '%s/aaindex/aaindex_used.txt' % DATA_FOLDER
-OUTPUT_FILE = '%s/permutation_testing.csv' % INPUT_FOLDER
+OUTPUT_FILE = '%s/permutation_testing_1.csv' % INPUT_FOLDER
 
 if __name__ == '__main__':
     if len(argv) < 2:
-        exit(1)
+        raise Exception('Please specify a mode. Choices: run, read')
 
     cols = ['Accuracy', 'Permuted accuracy']
 
     if argv[1] == 'run':
+        if len(argv) < 3:
+            raise Exception(
+                'Please specify number of iterations. Usage: python permutation_testing.py run [ iterations ]'
+            )
+        num_iter = int(argv[2])
         y, X = read_preprocessed_data(INPUT_FILE, FEATURES_FILE, format='df')
         train_size = int(len(y) * 0.66)
         y_train, X_train = y.iloc[:train_size, :], X.iloc[:train_size, :]
@@ -66,4 +72,6 @@ if __name__ == '__main__':
         plt.plot(range(len(accuracy_df)), accuracy_df[cols[1]])
         plt.title('Prediction accuracy (testing)')
         plt.legend(['non-permuted', 'permuted'])
+        plt.xlabel('Training cycle')
+        plt.ylabel('Testing accuracy')
         plt.show()
