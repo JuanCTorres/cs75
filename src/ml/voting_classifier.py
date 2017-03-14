@@ -139,7 +139,6 @@ sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 
 # ANIMALS
-
 INPUT_FILE = '../../data/animals/label_scores.txt'
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"

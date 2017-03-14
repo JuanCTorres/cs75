@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_classification
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
 
-INPUT_FILE = "../../data/plants/label_scores.txt"
+INPUT_FILE = "../../data/animals/label_scores.txt"
 FEATURES_FILE = '../../data/aaindex/aaindex_used.txt'
 CROSS_VAL = 5
 DEBUG = True
