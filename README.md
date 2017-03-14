@@ -2,12 +2,13 @@
 Seok Jun Bing, Tom Hao Chang, Jing Geng, Deven Orie, and Juan Camilo Torres
 
 ## Set Up
+*Developed in Python 2.7 environment<br>*
 Git pull and download:
 * [all_plants.fas_updated04152015](http://bioinformatics.ysu.edu/publication/data/PlantSecKB/)
 file to ./data/plants/
 * [metazoa_proteins.fas](http://proteomics.ysu.edu/publication/data/MetazSecKB/) file to ./data/animals/
 
-## File description
+## Data Files
 * `./data/aaindex/aaindex1.txt` contains raw dictionary data used by functions in `read_dicts.py`. **Don't alter**.
 * `./data/aaindex/aaindex_used.txt` is a list of aaindices to use when calculating values of features. Feel to alter this
 file.
@@ -22,7 +23,9 @@ file.
 
 * `./data/animals/permutation_testing.csv` output from permutation testing
 * `./data/compare/` This directory contains data from a comparison study
-* `/models/` contains weights of a trained LSTM
+
+## Data Preprocessing
+* `./models/` contains weights of a trained LSTM
 * `./src/data_processing/read_data.py` contains functions to process raw data inputs such as all_plants.fas_updated04152015
 and outputs a processed data file `./data/plants/label_scores.txt` which contains the labels and the score values in the 
 order of the aaindices in `aaindex_used.txt`
@@ -31,9 +34,10 @@ order of the aaindices in `aaindex_used.txt`
         * `[scores/sequences/kscores]` is an option to choose to one of the following outputs
             * `scores` outputs subcellular locations and feature scores
             * `sequences` outputs subcellular locations and amino acid sequences
-            * `kscores` outputs perfectly balanced set of subcellular locations and feature scores
-            
+            * `kscores` outputs perfectly balanced set of subcellular locations and feature scores        
 * `./src/data_processing/read_dicts.py` contains functions to build dictionaries. These functions are called in `read_data.py`.
+
+## Predictive Algorithms
 * `./src/ml/feature_importance_impurity` generates a graph ranking indices by Gini impurity
     * run by invoking `python feature_importance_impurity.py`
 * `./src/ml/keras_nn.py` is a densely connected neural network
