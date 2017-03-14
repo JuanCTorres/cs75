@@ -8,6 +8,7 @@ matplotlib.use('TKAgg')
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
 sys.path.append('../')
 from data_processing.read_data import read_preprocessed_data
 from sklearn.preprocessing import StandardScaler
@@ -37,8 +38,6 @@ def plot_feature_importance():
         names = [line for line in ifile]
 
     # Build a forest and compute the feature importances
-    # forest = ExtraTreesClassifier(n_estimators=250,
-    #                               random_state=0)
     forest = RandomForestClassifier(n_estimators=25,
                                     random_state=0, verbose=True)
 
@@ -63,7 +62,7 @@ def plot_feature_importance():
 
     # Plot the feature importances of the forest
     plt.figure()
-    plt.title('Feature importance (plants)')
+    plt.title('Feature importance (animals)')
     grid = range(X.shape[1] + 1)
     plt.bar(grid[: max_args + 1], importance_list[indices[: max_args + 1]],
             color='r', yerr=std[indices[: max_args + 1]], align='center')

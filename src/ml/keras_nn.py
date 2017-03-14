@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('../')
 
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
@@ -14,7 +15,6 @@ import numpy
 import pandas
 import math
 import time
-
 
 # ANIMALS
 INPUT_FILE = "../../data/animals/label_scores_150k.txt"
@@ -44,12 +44,11 @@ out_dim = len(set(Y))
 
 
 def basic_model():
-
     model = Sequential()
 
     model.add(Dense(in_dim, input_dim=in_dim, init='normal', activation='softplus'))
-    model.add(Dense((in_dim+out_dim)/2, init='normal', activation='softplus'))
-    model.add(Dense(math.sqrt(in_dim*out_dim), init='normal', activation='softplus'))
+    model.add(Dense((in_dim + out_dim) / 2, init='normal', activation='softplus'))
+    model.add(Dense(math.sqrt(in_dim * out_dim), init='normal', activation='softplus'))
     model.add(Dense(out_dim, init='normal', activation='softplus'))
 
     # optimizeers
@@ -61,7 +60,6 @@ def basic_model():
     nadam = Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08, schedule_decay=0.004)
     # Compile model
     model.compile(loss='categorical_crossentropy', optimizer=adamax, metrics=['accuracy'])
-
 
     return model
 
@@ -75,7 +73,6 @@ encoded_Y = encoder.transform(Y)
 dummy_y = np_utils.to_categorical(encoded_Y)
 estimator = KerasClassifier(build_fn=basic_model, nb_epoch=60, batch_size=100, verbose=1)
 
-
 # X_train, X_test, Y_train, Y_test = train_test_split(X, dummy_y, test_size=0.33, random_state=seed)
 # estimator.fit(X_train, Y_train)
 # predictions = estimator.predict(X_test)
@@ -88,7 +85,7 @@ start_time = time.time()
 results = cross_val_score(estimator, X, dummy_y, cv=kfold)
 end_time = time.time()
 
-print("\nBaseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
+print("\nBaseline: %.2f%% (%.2f%%)" % (results.mean() * 100, results.std() * 100))
 print("--- %s seconds ---" % (end_time - start_time))
 
 # 58.30% (0.38%) with top10

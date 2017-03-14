@@ -16,6 +16,7 @@ COMPARE_FOLDER = '%s/compare' % DATA_FOLDER
 # FILES
 AAINDEX_FILE = '%s/aaindex1.txt' % AAINDEX_FOLDER
 AAINDEX_USED_FILE = '%s/aaindex_used.txt' % AAINDEX_FOLDER
+OUTPUT_FILE = "%s/%s" % (COMPARE_FOLDER, 'compare_scores.csv')
 
 
 def read_all_fasta_files(dir):
@@ -25,7 +26,7 @@ def read_all_fasta_files(dir):
     :param dir: directory where all the files are
     :return: dataframe w/ each point labeled by its filename
     """
-    files_and_labels = [('%s/%s' % (COMPARE_FOLDER, f), f.split('.')[0]) for f in listdir(COMPARE_FOLDER)]
+    files_and_labels = [('%s/%s' % (dir, f), f.split('.')[0]) for f in listdir(dir) if f.split('.')[1] == 'fasta']
     sequence_matrix = [(SeqIO.parse(file, 'fasta'), label) for file, label in files_and_labels]
     cols = ['seq', 'label']
     main_df = pd.DataFrame(columns=cols)
@@ -66,4 +67,4 @@ if __name__ == '__main__':
     print(indices_used)
     mat = read_all_fasta_files(COMPARE_FOLDER)
     scores = get_scores(mat, AAINDEX_FILE, indices_used)
-    print(scores.head())
+    scores.to_csv(OUTPUT_FILE)
