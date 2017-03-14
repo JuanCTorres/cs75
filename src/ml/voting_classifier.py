@@ -223,13 +223,12 @@ if __name__ == '__main__':
         x_len_before = len(X[0])
     elif sys.argv[1] == 'compare':
         input_file = '../../data/compare/compare_scores.csv'
-        X = pd.read_csv(input_file, index_col=0)
-        cols = X.columns.values.tolist()
-        cols.remove('label');
-        cols.remove('seq')
-        Y = pd.DataFrame(data=X, columns=['label'])
-        input_sequences = pd.DataFrame(data=X, columns=['seq'])
-        X = pd.DataFrame(data=X, columns=cols)
+        all_df = pd.read_csv(input_file, index_col=0)
+        # extract the input features and sequences into different dataframes
+        cols = [col for col in all_df.columns.values if col not in ('label', 'seq')]
+        X = pd.DataFrame(data=all_df, columns=cols)
+        Y = pd.DataFrame(data=all_df, columns=['label'])
+        input_sequences = pd.DataFrame(data=all_df, columns=['seq'])
         x_len_before = len(X.iloc[0, :])
     else:
         raise Exception('Please specify a valid dataset to use. Options: default, compare')
