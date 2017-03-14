@@ -17,7 +17,7 @@ import time
 
 
 # ANIMALS
-INPUT_FILE = "../../data/animals/label_scores.txt"
+INPUT_FILE = "../../data/animals/label_scores_150k.txt"
 # PLANTS
 # INPUT_FILE = "../../data/plants/label_scores.txt"
 
